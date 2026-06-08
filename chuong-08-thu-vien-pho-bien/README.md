@@ -1,209 +1,43 @@
-# Chuong 8: Thu Vien Pho Bien
+# Chương 8: Thư Viện Phổ Biến
 
-## 8.1 Requests - HTTP Client
-
-Thu vien `requests` giup gui HTTP request mot cach don gian.
-
-### Cai dat
+## 8.1 requests - HTTP Client
 
 ```bash
 pip install requests
 ```
 
-### GET request
-
 ```python
 import requests
 
-# GET don gian
-response = requests.get("https://api.github.com/users/python")
-print(f"Status: {response.status_code}")
-print(f"Content-Type: {response.headers['content-type']}")
-data = response.json()
+# GET request
+resp = requests.get("https://api.github.com/users/python")
+print(f"Status: {resp.status_code}")
+data = resp.json()
 print(f"Name: {data['name']}")
 
-# GET voi params
-params = {"q": "python", "sort": "stars"}
-response = requests.get("https://api.github.com/search/repositories", params=params)
-```
-
-### POST request
-
-```python
-import requests
-
-# POST voi JSON
-data = {"title": "foo", "body": "bar", "userId": 1}
-response = requests.post(
-    "https://jsonplaceholder.typicode.com/posts",
-    json=data
-)
-print(response.status_code)  # 201
-print(response.json())
-```
-
-### Session va Headers
-
-```python
-import requests
-
-session = requests.Session()
-session.headers.update({
-    "Authorization": "Bearer token_xyz",
-    "Content-Type": "application/json"
+# POST request
+resp = requests.post("https://httpbin.org/post", json={
+    "ten": "Python",
+    "version": "3.12"
 })
+print(resp.json())
 
-# Tat ca request trong session se co headers nay
-response = session.get("https://api.example.com/data")
-```
-
-### Xu ly loi
-
-```python
-import requests
-from requests.exceptions import RequestException, Timeout
-
-try:
-    response = requests.get("https://api.example.com/data", timeout=5)
-    response.raise_for_status()
-    data = response.json()
-except Timeout:
-    print("Request qua thoi gian cho")
-except RequestException as e:
-    print(f"Loi request: {e}")
-```
-
-## 8.2 Pandas - Xu Ly Du Lieu
-
-Thu vien `pandas` la cong cu manh me de xu ly va phan tich du lieu.
-
-### Cai dat
-
-```bash
-pip install pandas
-```
-
-### DataFrame co ban
-
-```python
-import pandas as pd
-
-# Tao DataFrame tu dict
-data = {
-    "ten": ["An", "Binh", "Chi", "Dung", "Em"],
-    "tuoi": [22, 25, 23, 21, 24],
-    "diem": [8.5, 7.0, 9.2, 6.5, 8.0],
-    "lop": ["CNTT", "KTPM", "CNTT", "MMT", "KTPM"]
-}
-df = pd.DataFrame(data)
-print(df)
-```
-
-### Doc/Ghi file
-
-```python
-# Doc file CSV
-df = pd.read_csv("students.csv")
-
-# Doc file Excel
-df = pd.read_excel("data.xlsx")
-
-# Ghi ra CSV
-df.to_csv("output.csv", index=False)
-
-# Ghi ra Excel
-df.to_excel("output.xlsx", index=False)
-```
-
-### Loc va truy van du lieu
-
-```python
-# Loc theo dieu kien
-gioi = df[df["diem"] >= 8.0]
-cntt = df[df["lop"] == "CNTT"]
-
-# Nhieu dieu kien
-kq = df[(df["diem"] >= 8.0) & (df["tuoi"] < 24)]
-
-# Chon cot
-print(df[["ten", "diem"]])
-
-# Sap xep
-df_sorted = df.sort_values("diem", ascending=False)
-```
-
-### Thong ke va nhom
-
-```python
-# Thong ke co ban
-print(df["diem"].describe())
-print(f"Diem TB: {df['diem'].mean():.2f}")
-print(f"Diem cao nhat: {df['diem'].max()}")
-
-# Group by
-nhom = df.groupby("lop").agg({
-    "diem": ["mean", "max", "min", "count"],
-    "tuoi": "mean"
-})
-print(nhom)
-```
-
-### Them va xu ly cot
-
-```python
-# Them cot moi
-df["xep_loai"] = df["diem"].apply(
-    lambda d: "Gioi" if d >= 8 else "Kha" if d >= 7 else "TB"
+# Với headers & params
+resp = requests.get(
+    "https://api.example.com/search",
+    params={"q": "python", "limit": 10},
+    headers={"Authorization": "Bearer token123"},
+    timeout=10
 )
 
-# Xu ly missing values
-df.fillna(0, inplace=True)
-df.dropna(subset=["diem"], inplace=True)
+# Download file
+resp = requests.get("https://example.com/file.pdf", stream=True)
+with open("file.pdf", "wb") as f:
+    for chunk in resp.iter_content(chunk_size=8192):
+        f.write(chunk)
 ```
 
-## 8.3 Flask / FastAPI - Web Framework
-
-### Flask co ban
-
-```bash
-pip install flask
-```
-
-```python
-from flask import Flask, jsonify, request
-
-app = Flask(__name__)
-
-# Danh sach du lieu mau
-tasks = [
-    {"id": 1, "title": "Hoc Python", "done": False},
-    {"id": 2, "title": "Lam bai tap", "done": True},
-]
-
-@app.route("/")
-def home():
-    return "Xin chao! Day la API Flask."
-
-@app.route("/api/tasks", methods=["GET"])
-def get_tasks():
-    return jsonify(tasks)
-
-@app.route("/api/tasks", methods=["POST"])
-def create_task():
-    data = request.get_json()
-    task = {
-        "id": len(tasks) + 1,
-        "title": data["title"],
-        "done": False
-    }
-    tasks.append(task)
-    return jsonify(task), 201
-
-if __name__ == "__main__":
-    app.run(debug=True)
-```
-
-### FastAPI co ban
+## 8.2 FastAPI - Web Framework
 
 ```bash
 pip install fastapi uvicorn
@@ -212,176 +46,223 @@ pip install fastapi uvicorn
 ```python
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
-app = FastAPI(title="Task API", version="1.0")
+app = FastAPI()
 
 # Model
-class Task(BaseModel):
-    title: str
-    done: bool = False
+class SinhVien(BaseModel):
+    id: Optional[int] = None
+    ten: str
+    tuoi: int
+    diem: float
 
-class TaskResponse(Task):
-    id: int
-
-# Du lieu mau
-tasks = []
+# "Database"
+db: List[SinhVien] = []
+next_id = 1
 
 @app.get("/")
-def root():
-    return {"message": "Xin chao! Day la API FastAPI."}
+def home():
+    return {"message": "API Quản lý Sinh viên"}
 
-@app.get("/api/tasks", response_model=list[TaskResponse])
-def get_tasks():
-    return tasks
+@app.get("/students", response_model=List[SinhVien])
+def get_students():
+    return db
 
-@app.post("/api/tasks", response_model=TaskResponse, status_code=201)
-def create_task(task: Task):
-    new_task = TaskResponse(id=len(tasks) + 1, **task.dict())
-    tasks.append(new_task)
-    return new_task
+@app.post("/students", response_model=SinhVien, status_code=201)
+def create_student(sv: SinhVien):
+    global next_id
+    sv.id = next_id
+    next_id += 1
+    db.append(sv)
+    return sv
 
-@app.get("/api/tasks/{task_id}", response_model=TaskResponse)
-def get_task(task_id: int):
-    for task in tasks:
-        if task.id == task_id:
-            return task
-    raise HTTPException(status_code=404, detail="Task khong ton tai")
+@app.get("/students/{student_id}")
+def get_student(student_id: int):
+    for sv in db:
+        if sv.id == student_id:
+            return sv
+    raise HTTPException(status_code=404, detail="Không tìm thấy")
 
-# Chay: uvicorn main:app --reload
+@app.delete("/students/{student_id}")
+def delete_student(student_id: int):
+    for i, sv in enumerate(db):
+        if sv.id == student_id:
+            db.pop(i)
+            return {"message": "Đã xóa"}
+    raise HTTPException(status_code=404, detail="Không tìm thấy")
+
+# Chạy: uvicorn main:app --reload
+# Docs: http://localhost:8000/docs
 ```
 
-## 8.4 Pytest - Testing
+## 8.3 SQLAlchemy - Database ORM
 
-### Cai dat
+```bash
+pip install sqlalchemy
+```
+
+```python
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+# Setup
+engine = create_engine("sqlite:///students.db")
+Base = declarative_base()
+Session = sessionmaker(bind=engine)
+
+# Model
+class Student(Base):
+    __tablename__ = "students"
+    id = Column(Integer, primary_key=True)
+    ten = Column(String(100), nullable=False)
+    tuoi = Column(Integer)
+    diem = Column(Float)
+
+    def __repr__(self):
+        return f"Student({self.ten}, {self.diem})"
+
+# Tạo bảng
+Base.metadata.create_all(engine)
+
+# CRUD
+session = Session()
+
+# Create
+sv = Student(ten="Nguyễn A", tuoi=22, diem=8.5)
+session.add(sv)
+session.commit()
+
+# Read
+all_students = session.query(Student).all()
+gioi = session.query(Student).filter(Student.diem >= 8.0).all()
+
+# Update
+sv = session.query(Student).filter_by(ten="Nguyễn A").first()
+sv.diem = 9.0
+session.commit()
+
+# Delete
+session.query(Student).filter_by(ten="Nguyễn A").delete()
+session.commit()
+```
+
+## 8.4 pytest - Testing
 
 ```bash
 pip install pytest
 ```
 
-### Test co ban
-
 ```python
-# File: test_calculator.py
-
+# file: test_calculator.py
 def cong(a, b):
     return a + b
 
-def tru(a, b):
-    return a - b
-
 def chia(a, b):
     if b == 0:
-        raise ValueError("Khong the chia cho 0")
+        raise ValueError("Chia cho 0!")
     return a / b
 
-# Test functions
+# Tests
 def test_cong():
     assert cong(2, 3) == 5
     assert cong(-1, 1) == 0
     assert cong(0, 0) == 0
 
-def test_tru():
-    assert tru(5, 3) == 2
-    assert tru(0, 5) == -5
-
 def test_chia():
-    assert chia(10, 2) == 5
+    assert chia(10, 2) == 5.0
     assert chia(7, 2) == 3.5
 
 def test_chia_cho_0():
     import pytest
     with pytest.raises(ValueError):
         chia(10, 0)
+
+# Chạy: pytest test_calculator.py -v
 ```
 
-### Fixture
+### Fixtures
 
 ```python
 import pytest
 
 @pytest.fixture
 def sample_data():
-    """Fixture cung cap du lieu mau."""
-    return {
-        "students": [
-            {"ten": "An", "diem": 8.5},
-            {"ten": "Binh", "diem": 7.0},
-            {"ten": "Chi", "diem": 9.2},
-        ]
-    }
+    return [1, 2, 3, 4, 5]
 
-def test_average(sample_data):
-    diem = [s["diem"] for s in sample_data["students"]]
-    avg = sum(diem) / len(diem)
-    assert round(avg, 2) == 8.23
+@pytest.fixture
+def empty_list():
+    return []
 
-def test_max_score(sample_data):
-    diem = [s["diem"] for s in sample_data["students"]]
-    assert max(diem) == 9.2
+def test_sum(sample_data):
+    assert sum(sample_data) == 15
+
+def test_empty(empty_list):
+    assert len(empty_list) == 0
 ```
 
-### Parametrize
-
-```python
-import pytest
-
-@pytest.mark.parametrize("input,expected", [
-    (1, 1),
-    (2, 1),
-    (3, 2),
-    (5, 5),
-    (10, 55),
-])
-def test_fibonacci(input, expected):
-    assert fib(input) == expected
-```
-
-### Chay test
+## 8.5 pandas - Data Analysis
 
 ```bash
-# Chay tat ca test
-pytest
-
-# Chay voi thong tin chi tiet
-pytest -v
-
-# Chay mot file cu the
-pytest test_calculator.py
-
-# Chay voi coverage
-pip install pytest-cov
-pytest --cov=src tests/
+pip install pandas
 ```
 
-## 8.5 Cac Thu Vien Khac Dang Chu Y
+```python
+import pandas as pd
 
-| Thu Vien | Muc Dich |
+# Tạo DataFrame
+df = pd.DataFrame({
+    "ten": ["An", "Binh", "Cuong", "Dung", "Em"],
+    "tuoi": [22, 21, 23, 20, 22],
+    "diem_python": [8.5, 7.0, 9.2, 6.5, 8.0],
+    "diem_sql": [7.5, 8.0, 8.5, 7.0, 9.0],
+})
+
+# Thao tác cơ bản
+print(df.head())
+print(df.describe())
+print(df.info())
+
+# Thêm cột
+df["diem_tb"] = (df["diem_python"] + df["diem_sql"]) / 2
+
+# Lọc
+gioi = df[df["diem_tb"] >= 8.0]
+print(gioi)
+
+# Sắp xếp
+df_sorted = df.sort_values("diem_tb", ascending=False)
+
+# Group by
+# df.groupby("lop")["diem"].mean()
+
+# Đọc/ghi CSV
+df.to_csv("students.csv", index=False)
+df2 = pd.read_csv("students.csv")
+```
+
+## 8.6 Các Thư Viện Khác Nên Biết
+
+| Thư viện | Dùng cho |
 |----------|----------|
-| `beautifulsoup4` | Web scraping, parse HTML |
-| `selenium` | Browser automation |
-| `sqlalchemy` | ORM cho database |
-| `celery` | Task queue, background jobs |
-| `click` | Tao CLI application |
-| `rich` | Terminal UI dep |
-| `httpx` | HTTP client (async support) |
+| `matplotlib` / `seaborn` | Vẽ biểu đồ |
+| `numpy` | Tính toán số học |
+| `beautifulsoup4` | Web scraping |
+| `selenium` | Tự động hóa browser |
+| `celery` | Task queue |
 | `pydantic` | Data validation |
-| `pillow` | Xu ly hinh anh |
-| `matplotlib` | Ve bieu do |
+| `click` / `typer` | CLI tool |
+| `python-dotenv` | Quản lý env variables |
+| `loguru` | Logging đẹp hơn |
+| `httpx` | HTTP client async |
 
-## Bai Tap
+## 8.7 Bài Tập
 
-1. Su dung `requests` lay du lieu tu mot API cong khai va in ket qua
-2. Tao DataFrame tu danh sach sinh vien, tinh diem TB theo lop
-3. Tao REST API don gian voi Flask hoac FastAPI (CRUD cho mot resource)
-4. Viet test voi pytest cho mot module tinh toan (cong, tru, nhan, chia)
-5. Dung pandas doc file CSV va tao bao cao thong ke
-6. Tao FastAPI app voi validation dung Pydantic model
+1. Dùng requests: gọi API thời tiết, hiển thị kết quả
+2. Tạo FastAPI CRUD cho quản lý sản phẩm
+3. Viết test cho hàm tính toán
+4. Dùng pandas phân tích file CSV
 
-## Tai Lieu Tham Khao
+---
 
-- [Requests Documentation](https://requests.readthedocs.io/)
-- [Pandas Documentation](https://pandas.pydata.org/docs/)
-- [Flask Documentation](https://flask.palletsprojects.com/)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Pytest Documentation](https://docs.pytest.org/)
+📖 **Trước đó**: [Chương 7](../chuong-07-cau-truc-du-lieu-nang-cao/README.md) | **Tiếp theo**: [Chương 9](../chuong-09-du-an-thuc-hanh/README.md)

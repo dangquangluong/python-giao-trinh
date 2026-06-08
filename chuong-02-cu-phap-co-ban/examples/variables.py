@@ -1,73 +1,44 @@
-"""
-Chuong 2: Vi du ve bien va kieu du lieu
-"""
+# Ví dụ về biến và kiểu dữ liệu
 
-# === Kieu so ===
-print("=== Kieu So ===")
-so_nguyen = 42
-so_thuc = 3.14
-so_phuc = 2 + 3j
+# === BIẾN ===
+ten = "Nguyễn Văn A"
+tuoi = 25
+chieu_cao = 1.75
+la_sinh_vien = True
 
-print(f"So nguyen: {so_nguyen} (type: {type(so_nguyen).__name__})")
-print(f"So thuc: {so_thuc} (type: {type(so_thuc).__name__})")
-print(f"So phuc: {so_phuc} (type: {type(so_phuc).__name__})")
-print()
+print(f"Tên: {ten}")
+print(f"Tuổi: {tuoi} ({type(tuoi).__name__})")
+print(f"Cao: {chieu_cao}m ({type(chieu_cao).__name__})")
+print(f"Sinh viên: {la_sinh_vien}")
 
-# === Kieu chuoi ===
-print("=== Kieu Chuoi ===")
-ten = "Nguyen Van A"
-dia_chi = 'Ha Noi, Viet Nam'
+# === LIST ===
+print("\n=== LIST ===")
+diem = [85, 90, 78, 92, 88]
+print(f"Điểm: {diem}")
+print(f"TB: {sum(diem)/len(diem):.1f}")
+print(f"Max: {max(diem)}, Min: {min(diem)}")
 
-print(f"Ten: {ten}")
-print(f"Do dai ten: {len(ten)}")
-print(f"Chu hoa: {ten.upper()}")
-print(f"Chu thuong: {ten.lower()}")
-print(f"Thay the: {ten.replace('A', 'B')}")
-print()
+diem.sort()
+print(f"Sắp xếp: {diem}")
 
-# === Slicing ===
-print("=== Slicing ===")
-s = "Python Programming"
-print(f"Chuoi: '{s}'")
-print(f"s[0:6] = '{s[0:6]}'")
-print(f"s[7:] = '{s[7:]}'")
-print(f"s[-11:] = '{s[-11:]}'")
-print(f"s[::2] = '{s[::2]}'")
-print(f"Dao nguoc: '{s[::-1]}'")
-print()
+# === DICT ===
+print("\n=== DICTIONARY ===")
+sv = {"ten": "Trần B", "tuoi": 22, "diem": 8.5}
+for k, v in sv.items():
+    print(f"  {k}: {v}")
 
-# === List ===
-print("=== List ===")
-fruits = ["tao", "cam", "chuoi", "nho", "xoai"]
-print(f"Danh sach: {fruits}")
-print(f"Phan tu dau: {fruits[0]}")
-print(f"Phan tu cuoi: {fruits[-1]}")
-print(f"Slice [1:3]: {fruits[1:3]}")
+# === STRING ===
+print("\n=== STRING METHODS ===")
+text = "  Python Là Tuyệt Vời  "
+print(f"strip: '{text.strip()}'")
+print(f"upper: '{text.upper()}'")
+print(f"lower: '{text.lower()}'")
+print(f"split: {text.split()}")
+print(f"replace: '{text.replace('Python', 'Rust')}'")
 
-fruits.append("dua")
-print(f"Sau khi them 'dua': {fruits}")
-
-fruits.sort()
-print(f"Sau khi sap xep: {fruits}")
-print()
-
-# === Dictionary ===
-print("=== Dictionary ===")
-sinh_vien = {
-    "ten": "Tran Thi B",
-    "mssv": "SV001",
-    "diem_tb": 8.5,
-    "mon_hoc": ["Python", "SQL", "Web"]
-}
-
-for key, value in sinh_vien.items():
-    print(f"  {key}: {value}")
-print()
-
-# === Chuyen doi kieu ===
-print("=== Chuyen Doi Kieu ===")
-x = "123"
-print(f"'{x}' -> int: {int(x)}")
-print(f"'{x}' -> float: {float(x)}")
-print(f"42 -> str: '{str(42)}'")
-print(f"[1,2,2,3] -> set: {set([1, 2, 2, 3])}")
+# === SLICING ===
+print("\n=== SLICING ===")
+s = "Python"
+print(f"s[0]   = '{s[0]}'")
+print(f"s[2:5] = '{s[2:5]}'")
+print(f"s[::-1]= '{s[::-1]}'")

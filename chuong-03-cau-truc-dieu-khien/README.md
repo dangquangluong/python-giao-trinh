@@ -1,293 +1,188 @@
-# Chuong 3: Cau Truc Dieu Khien
+# Chương 3: Cấu Trúc Điều Khiển
 
-## 3.1 Cau Lenh If/Else
-
-### If don gian
+## 3.1 If / Elif / Else
 
 ```python
-tuoi = 18
+diem = 75
 
-if tuoi >= 18:
-    print("Ban da du tuoi")
-```
-
-### If/Else
-
-```python
-diem = 7.5
-
-if diem >= 5:
-    print("Dat")
+if diem >= 90:
+    print("Xuất sắc! 🌟")
+elif diem >= 80:
+    print("Giỏi! 👍")
+elif diem >= 65:
+    print("Khá!")
+elif diem >= 50:
+    print("Trung bình")
 else:
-    print("Khong dat")
+    print("Yếu - Cần cố gắng 💪")
 ```
 
-### If/Elif/Else
+### Toán Tử So Sánh
 
 ```python
-diem = 8.5
+# ==, !=, <, >, <=, >=
+# and, or, not
+# in, not in
+# is, is not
 
-if diem >= 9:
-    xep_loai = "Xuat sac"
-elif diem >= 8:
-    xep_loai = "Gioi"
-elif diem >= 7:
-    xep_loai = "Kha"
-elif diem >= 5:
-    xep_loai = "Trung binh"
-else:
-    xep_loai = "Khong dat"
+x = 10
+if 0 < x < 100:      # Chain comparison
+    print("x trong khoảng 0-100")
 
-print(f"Diem: {diem} - Xep loai: {xep_loai}")
+fruits = ["apple", "banana"]
+if "apple" in fruits:
+    print("Có apple!")
 ```
 
-### Toan tu ba ngoi (Ternary)
+### Ternary (Biểu thức điều kiện)
 
 ```python
 tuoi = 20
-ket_qua = "Nguoi lon" if tuoi >= 18 else "Tre em"
-print(ket_qua)
+loai = "Người lớn" if tuoi >= 18 else "Trẻ em"
+print(loai)
 ```
 
-### Dieu kien long nhau
+## 3.2 Vòng Lặp For
 
 ```python
-username = "admin"
-password = "123456"
+# Lặp qua range
+for i in range(5):         # 0, 1, 2, 3, 4
+    print(i)
 
-if username == "admin":
-    if password == "123456":
-        print("Dang nhap thanh cong!")
-    else:
-        print("Sai mat khau!")
-else:
-    print("Sai ten dang nhap!")
+for i in range(1, 11):    # 1 đến 10
+    print(i)
+
+for i in range(0, 20, 2): # 0, 2, 4, ..., 18 (bước 2)
+    print(i)
+
+# Lặp qua list
+mon_hoc = ["Python", "Java", "SQL", "Git"]
+for mon in mon_hoc:
+    print(f"  - {mon}")
+
+# enumerate (lặp với index)
+for i, mon in enumerate(mon_hoc, start=1):
+    print(f"  {i}. {mon}")
+
+# Lặp qua dict
+sv = {"ten": "A", "tuoi": 22, "diem": 8.5}
+for key, value in sv.items():
+    print(f"  {key} = {value}")
+
+# Lặp qua string
+for ch in "Python":
+    print(ch, end=" ")  # P y t h o n
 ```
 
-## 3.2 Vong Lap For
-
-### Duyet list
+## 3.3 Vòng Lặp While
 
 ```python
-fruits = ["tao", "cam", "chuoi", "nho"]
-for fruit in fruits:
-    print(f"Toi thich an {fruit}")
-```
+# Đếm ngược
+n = 10
+while n > 0:
+    print(f"{n}...", end=" ")
+    n -= 1
+print("Phóng! 🚀")
 
-### Ham range()
-
-```python
-# range(stop)
-for i in range(5):
-    print(i)  # 0, 1, 2, 3, 4
-
-# range(start, stop)
-for i in range(1, 6):
-    print(i)  # 1, 2, 3, 4, 5
-
-# range(start, stop, step)
-for i in range(0, 10, 2):
-    print(i)  # 0, 2, 4, 6, 8
-
-# Dem nguoc
-for i in range(10, 0, -1):
-    print(i)  # 10, 9, 8, ..., 1
-```
-
-### Duyet dictionary
-
-```python
-sinh_vien = {"ten": "An", "tuoi": 20, "lop": "CNTT"}
-
-# Duyet key
-for key in sinh_vien:
-    print(key)
-
-# Duyet key va value
-for key, value in sinh_vien.items():
-    print(f"{key}: {value}")
-```
-
-### enumerate() va zip()
-
-```python
-# enumerate - lay index va gia tri
-fruits = ["tao", "cam", "chuoi"]
-for index, fruit in enumerate(fruits, start=1):
-    print(f"{index}. {fruit}")
-
-# zip - ghep nhieu list
-ten = ["An", "Binh", "Chi"]
-diem = [8.5, 7.0, 9.2]
-for t, d in zip(ten, diem):
-    print(f"{t}: {d}")
-```
-
-## 3.3 Vong Lap While
-
-### While co ban
-
-```python
-dem = 1
-while dem <= 5:
-    print(f"Lan thu {dem}")
-    dem += 1
-```
-
-### While voi dieu kien phuc tap
-
-```python
-tong = 0
-so = 1
-
-while tong < 100:
-    tong += so
-    so += 1
-
-print(f"Tong = {tong}, so cuoi = {so - 1}")
-```
-
-### Vong lap vo han va break
-
-```python
+# Input validation
 while True:
-    lenh = input("Nhap lenh (quit de thoat): ")
-    if lenh == "quit":
-        print("Tam biet!")
+    tuoi = input("Nhập tuổi (1-150): ")
+    if tuoi.isdigit() and 1 <= int(tuoi) <= 150:
         break
-    print(f"Ban da nhap: {lenh}")
+    print("Tuổi không hợp lệ, thử lại!")
 ```
 
-## 3.4 Break, Continue, Pass
-
-### break - thoat khoi vong lap
+## 3.4 Break, Continue, Else
 
 ```python
-for i in range(1, 11):
+# break - thoát vòng lặp
+for i in range(100):
     if i == 5:
         break
-    print(i)
-# In: 1, 2, 3, 4
-```
+    print(i)  # 0, 1, 2, 3, 4
 
-### continue - bo qua lan lap hien tai
-
-```python
-for i in range(1, 11):
+# continue - bỏ qua lần lặp hiện tại
+for i in range(10):
     if i % 2 == 0:
         continue
-    print(i)
-# In: 1, 3, 5, 7, 9 (chi so le)
-```
+    print(i)  # 1, 3, 5, 7, 9
 
-### pass - khong lam gi (placeholder)
-
-```python
-for i in range(10):
-    if i < 5:
-        pass  # Se xu ly sau
+# for-else: else chạy khi KHÔNG có break
+for i in range(2, 20):
+    for j in range(2, i):
+        if i % j == 0:
+            break
     else:
-        print(i)
+        print(f"{i} là số nguyên tố")
 ```
 
-## 3.5 For/Else Va While/Else
+## 3.5 List Comprehension
+
+Cách viết gọn để tạo list:
 
 ```python
-# Else duoc thuc hien khi vong lap ket thuc binh thuong (khong break)
-numbers = [2, 4, 6, 8, 10]
-
-for n in numbers:
-    if n % 2 != 0:
-        print(f"Tim thay so le: {n}")
-        break
-else:
-    print("Tat ca deu la so chan")
-```
-
-## 3.6 Comprehensions
-
-### List Comprehension
-
-```python
-# Cach thuong
-squares = []
+# Bình thường
+binh_phuong = []
 for i in range(1, 11):
-    squares.append(i ** 2)
+    binh_phuong.append(i ** 2)
 
-# List comprehension
-squares = [i ** 2 for i in range(1, 11)]
-print(squares)  # [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+# List comprehension (ngắn gọn hơn)
+binh_phuong = [i ** 2 for i in range(1, 11)]
+print(binh_phuong)  # [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
 
-# Voi dieu kien (filter)
-even_squares = [i ** 2 for i in range(1, 11) if i % 2 == 0]
-print(even_squares)  # [4, 16, 36, 64, 100]
+# Với điều kiện
+chan = [x for x in range(20) if x % 2 == 0]
+print(chan)  # [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
 
-# Voi if/else
-results = ["chan" if i % 2 == 0 else "le" for i in range(1, 6)]
-print(results)  # ['le', 'chan', 'le', 'chan', 'le']
+# Lồng nhau
+matrix = [[i*3+j for j in range(3)] for i in range(3)]
+# [[0,1,2], [3,4,5], [6,7,8]]
+
+# Dict comprehension
+binh_phuong_dict = {x: x**2 for x in range(1, 6)}
+# {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+# Set comprehension
+unique_lengths = {len(word) for word in ["hi", "hello", "hey"]}
+# {2, 3, 5}
 ```
 
-### Dictionary Comprehension
+## 3.6 Match-Case (Python 3.10+)
 
 ```python
-# Tao dict tu list
-names = ["an", "binh", "chi"]
-name_lengths = {name: len(name) for name in names}
-print(name_lengths)  # {'an': 2, 'binh': 4, 'chi': 3}
+command = "start"
 
-# Loc dict
-diem = {"An": 8, "Binh": 4, "Chi": 9, "Dung": 3}
-dat = {k: v for k, v in diem.items() if v >= 5}
-print(dat)  # {'An': 8, 'Chi': 9}
+match command:
+    case "start":
+        print("Bắt đầu!")
+    case "stop":
+        print("Dừng lại!")
+    case "pause":
+        print("Tạm dừng")
+    case _:
+        print("Lệnh không hợp lệ")
+
+# Pattern matching với destructuring
+point = (3, 4)
+match point:
+    case (0, 0):
+        print("Gốc tọa độ")
+    case (x, 0):
+        print(f"Trên trục X: x={x}")
+    case (0, y):
+        print(f"Trên trục Y: y={y}")
+    case (x, y):
+        print(f"Điểm ({x}, {y})")
 ```
 
-### Set Comprehension
+## 3.7 Bài Tập
 
-```python
-# Tap hop cac chu cai dau
-words = ["apple", "avocado", "banana", "blueberry", "cherry"]
-first_letters = {w[0] for w in words}
-print(first_letters)  # {'a', 'b', 'c'}
-```
+1. FizzBuzz: in 1-100, chia hết 3→Fizz, 5→Buzz, cả hai→FizzBuzz
+2. Tính giai thừa n! bằng while
+3. In hình tam giác sao (input số dòng)
+4. List comprehension: lọc số nguyên tố từ 1-100
+5. Trò chơi đoán số (random 1-100, user nhập cho đến khi đúng)
 
-### Generator Expression
+---
 
-```python
-# Tuong tu list comp nhung dung () - tiet kiem bo nho
-gen = (i ** 2 for i in range(1000000))
-print(next(gen))  # 0
-print(next(gen))  # 1
-print(sum(gen))   # Tinh tong ma khong tao list
-```
-
-## 3.7 Vong Lap Long Nhau
-
-```python
-# Bang cuu chuong
-for i in range(2, 10):
-    print(f"\n=== Bang cuu chuong {i} ===")
-    for j in range(1, 11):
-        print(f"{i} x {j} = {i*j:>2}")
-```
-
-## Bai Tap
-
-1. Viet chuong trinh nhap diem va xep loai (Xuat sac, Gioi, Kha, Trung binh, Yeu)
-2. In cac so nguyen to tu 2 den 100
-3. Viet chuong trinh doan so (may chon ngau nhien, nguoi dung doan)
-4. In tam giac so:
-   ```
-   1
-   1 2
-   1 2 3
-   1 2 3 4
-   1 2 3 4 5
-   ```
-5. Dung list comprehension tao danh sach cac so chia het cho 3 hoac 5 trong khoang 1-100
-6. Viet chuong trinh FizzBuzz: in tu 1-100, chia het cho 3 in "Fizz", cho 5 in "Buzz", cho ca 3 va 5 in "FizzBuzz"
-7. Tao dictionary comprehension: key la so tu 1-20, value la binh phuong cua so do
-
-## Tai Lieu Tham Khao
-
-- [Python Control Flow](https://docs.python.org/3/tutorial/controlflow.html)
-- [List Comprehensions](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)
+📖 **Trước đó**: [Chương 2](../chuong-02-cu-phap-co-ban/README.md) | **Tiếp theo**: [Chương 4](../chuong-04-ham-va-module/README.md)

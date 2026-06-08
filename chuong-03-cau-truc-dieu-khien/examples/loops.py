@@ -1,91 +1,48 @@
-"""
-Chuong 3: Vi du ve vong lap va dieu kien
-"""
+# Ví dụ về vòng lặp và cấu trúc điều khiển
 
-# === If/Elif/Else ===
-print("=== Xep loai diem ===")
-diem_list = [9.5, 8.0, 6.5, 4.0, 7.5]
-
-for diem in diem_list:
-    if diem >= 9:
-        xep_loai = "Xuat sac"
-    elif diem >= 8:
-        xep_loai = "Gioi"
-    elif diem >= 7:
-        xep_loai = "Kha"
-    elif diem >= 5:
-        xep_loai = "Trung binh"
+# === FIZZBUZZ ===
+print("=== FizzBuzz ===")
+for i in range(1, 31):
+    if i % 15 == 0:
+        print("FizzBuzz", end=" ")
+    elif i % 3 == 0:
+        print("Fizz", end=" ")
+    elif i % 5 == 0:
+        print("Buzz", end=" ")
     else:
-        xep_loai = "Yeu"
-    print(f"  Diem {diem:.1f} -> {xep_loai}")
+        print(i, end=" ")
+    if i % 10 == 0:
+        print()
 
-print()
+# === LIST COMPREHENSION ===
+print("\n\n=== List Comprehension ===")
+binh_phuong = [x**2 for x in range(1, 11)]
+print(f"Bình phương: {binh_phuong}")
 
-# === For loop ===
-print("=== So nguyen to tu 2 den 50 ===")
-primes = []
-for num in range(2, 51):
-    is_prime = True
-    for i in range(2, int(num ** 0.5) + 1):
-        if num % i == 0:
-            is_prime = False
-            break
-    if is_prime:
-        primes.append(num)
+chan = [x for x in range(1, 21) if x % 2 == 0]
+print(f"Số chẵn: {chan}")
 
-print(primes)
-print(f"Co {len(primes)} so nguyen to")
-print()
+# Số nguyên tố
+nguyen_to = [n for n in range(2, 50) if all(n % i != 0 for i in range(2, int(n**0.5)+1))]
+print(f"Nguyên tố < 50: {nguyen_to}")
 
-# === While loop ===
-print("=== Fibonacci ===")
-n = 10
-a, b = 0, 1
-fib = []
-while len(fib) < n:
-    fib.append(a)
-    a, b = b, a + b
+# === TAM GIÁC SAO ===
+print("\n=== Tam giác sao ===")
+n = 5
+for i in range(1, n + 1):
+    print(" " * (n - i) + "*" * (2*i - 1))
 
-print(f"{n} so Fibonacci dau tien: {fib}")
-print()
+# === ENUMERATE ===
+print("\n=== Enumerate ===")
+mon_hoc = ["Python", "JavaScript", "Rust", "Go"]
+for i, mon in enumerate(mon_hoc, 1):
+    print(f"  {i}. {mon}")
 
-# === Comprehensions ===
-print("=== List Comprehension ===")
-
-# So binh phuong
-squares = [x**2 for x in range(1, 11)]
-print(f"Binh phuong 1-10: {squares}")
-
-# Loc so chan
-evens = [x for x in range(1, 21) if x % 2 == 0]
-print(f"So chan 1-20: {evens}")
-
-# FizzBuzz bang comprehension
-fizzbuzz = [
-    "FizzBuzz" if i % 15 == 0
-    else "Fizz" if i % 3 == 0
-    else "Buzz" if i % 5 == 0
-    else str(i)
-    for i in range(1, 21)
-]
-print(f"FizzBuzz 1-20: {fizzbuzz}")
-print()
-
-# === Dict Comprehension ===
-print("=== Dict Comprehension ===")
-words = ["python", "java", "javascript", "go", "rust"]
-word_lengths = {w: len(w) for w in words}
-print(f"Do dai tu: {word_lengths}")
-print()
-
-# === Nested Loop ===
-print("=== Tam giac sao ===")
-for i in range(1, 6):
-    print("* " * i)
-
-print()
-print("=== Tam giac so ===")
-for i in range(1, 6):
-    for j in range(1, i + 1):
-        print(j, end=" ")
-    print()
+# === WHILE + BREAK ===
+print("\n=== Tìm số chia hết cho 7 và 11 ===")
+n = 1
+while True:
+    if n % 7 == 0 and n % 11 == 0:
+        print(f"Số nhỏ nhất chia hết cho 7 và 11: {n}")
+        break
+    n += 1

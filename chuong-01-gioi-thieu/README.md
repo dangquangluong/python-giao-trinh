@@ -1,181 +1,150 @@
-# Chuong 1: Gioi Thieu Python
+# Chương 1: Giới Thiệu Python & Cài Đặt
 
-## 1.1 Python La Gi?
+## 1.1 Python Là Gì?
 
-Python la mot ngon ngu lap trinh bac cao, da muc dich, duoc tao ra boi Guido van Rossum va phat hanh lan dau nam 1991. Python noi tieng voi cu phap don gian, de doc va de hoc.
+**Python** là ngôn ngữ lập trình bậc cao, đa năng, được Guido van Rossum tạo ra năm 1991. Python nổi tiếng vì cú pháp đơn giản, dễ đọc, dễ học.
 
-### Dac Diem Noi Bat
+### Đặc Điểm
 
-- **De hoc**: Cu phap ro rang, gan voi ngon ngu tu nhien
-- **Da muc dich**: Web, data science, AI, automation, game, ...
-- **Thu vien phong phu**: PyPI co hon 400,000 package
-- **Cong dong lon**: Ho tro tu cong dong toan cau
-- **Da nen tang**: Chay tren Windows, Linux, macOS
+| Đặc điểm | Mô tả |
+|-----------|--------|
+| **Dễ học** | Cú pháp gần tiếng Anh, ngắn gọn |
+| **Đa năng** | Web, AI, Data Science, Automation, Game... |
+| **Thông dịch** | Không cần compile, chạy trực tiếp |
+| **Cộng đồng lớn** | Hàng triệu thư viện miễn phí (PyPI) |
+| **Cross-platform** | Chạy trên Windows, Mac, Linux |
 
-## 1.2 Lich Su Phat Trien
+### Python Dùng Để Làm Gì?
 
-| Nam | Su Kien |
-|-----|---------|
-| 1991 | Python 0.9.0 duoc phat hanh |
-| 2000 | Python 2.0 - List comprehension, garbage collection |
-| 2008 | Python 3.0 - Phien ban hien dai, khong tuong thich nguoc |
-| 2020 | Python 2 ket thuc ho tro (EOL) |
-| 2023 | Python 3.12 - Hieu suat cai thien, error message tot hon |
-| 2024 | Python 3.13 - GIL tu chon, JIT compiler thi nghiem |
+| Lĩnh vực | Thư viện/Framework |
+|-----------|-------------------|
+| **Web Development** | Django, Flask, FastAPI |
+| **Data Science** | Pandas, NumPy, Matplotlib |
+| **Machine Learning** | TensorFlow, PyTorch, scikit-learn |
+| **Automation** | Selenium, PyAutoGUI, Schedule |
+| **Game** | Pygame |
+| **Desktop App** | Tkinter, PyQt |
+| **DevOps** | Ansible, Fabric |
 
-## 1.3 Ung Dung Cua Python
-
-### Web Development
-- Django, Flask, FastAPI
-- Backend API, full-stack web
-
-### Data Science & AI
-- NumPy, Pandas, Matplotlib
-- TensorFlow, PyTorch, scikit-learn
-
-### Automation & Scripting
-- Tu dong hoa tac vu
-- Web scraping, xu ly file
-
-### DevOps
-- Ansible, SaltStack
-- AWS SDK (boto3), scripting
-
-## 1.4 Cai Dat Python
+## 1.2 Cài Đặt Python
 
 ### Windows
 
-1. Truy cap [python.org/downloads](https://www.python.org/downloads/)
-2. Tai phien ban moi nhat (3.12+)
-3. Chay file installer
-4. **Quan trong**: Tick chon "Add Python to PATH"
-5. Nhan "Install Now"
-
-Kiem tra:
-```bash
-python --version
-pip --version
-```
-
-### Linux (Ubuntu/Debian)
-
-```bash
-# Python thuong duoc cai san
-python3 --version
-
-# Neu chua co, cai dat:
-sudo apt update
-sudo apt install python3 python3-pip python3-venv
-```
+1. Tải từ [python.org/downloads](https://www.python.org/downloads/)
+2. Chạy installer
+3. ✅ **QUAN TRỌNG**: Tick "Add Python to PATH"
+4. Nhấn Install Now
 
 ### macOS
 
 ```bash
-# Su dung Homebrew
-brew install python3
+# Cách 1: Homebrew (khuyến nghị)
+brew install python
 
-# Kiem tra
-python3 --version
+# Cách 2: Tải từ python.org
 ```
 
-## 1.5 Thiet Lap IDE
-
-### VS Code (Khuyen Nghi)
-
-1. Tai VS Code tu [code.visualstudio.com](https://code.visualstudio.com)
-2. Cai dat extension "Python" cua Microsoft
-3. Cai dat extension "Pylance" de ho tro IntelliSense
-4. Chon Python interpreter: `Ctrl+Shift+P` > "Python: Select Interpreter"
-
-### PyCharm
-
-1. Tai tu [jetbrains.com/pycharm](https://www.jetbrains.com/pycharm/)
-2. Phien ban Community mien phi, du dung cho hoc tap
-3. Tao project moi va chon Python interpreter
-
-### Jupyter Notebook
+### Linux
 
 ```bash
-pip install jupyter
-jupyter notebook
+# Ubuntu / Debian
+sudo apt update
+sudo apt install python3 python3-pip python3-venv
+
+# Fedora
+sudo dnf install python3 python3-pip
 ```
 
-Phu hop cho hoc tap, thi nghiem va data science.
-
-## 1.6 Moi Truong Ao (Virtual Environment)
-
-Moi truong ao giup cach ly cac thu vien giua cac du an khac nhau.
+### Kiểm tra
 
 ```bash
-# Tao moi truong ao
-python3 -m venv myproject_env
-
-# Kich hoat (Linux/Mac)
-source myproject_env/bin/activate
-
-# Kich hoat (Windows)
-myproject_env\Scripts\activate
-
-# Huy kich hoat
-deactivate
+python3 --version    # Python 3.12.x
+pip3 --version       # pip 24.x
 ```
 
-## 1.7 Chuong Trinh Dau Tien
+## 1.3 IDE / Editor
 
-Tao file `hello.py`:
+| Editor | Ưu điểm |
+|--------|---------|
+| **VS Code** | Miễn phí, nhẹ, nhiều extension (khuyến nghị) |
+| **PyCharm** | IDE chuyên Python, mạnh mẽ |
+| **Jupyter Notebook** | Tương tác, tốt cho Data Science |
+| **IDLE** | Đi kèm Python, đơn giản |
+
+### Cài VS Code + Python Extension
+
+1. Tải [VS Code](https://code.visualstudio.com/)
+2. Mở Extensions (Ctrl+Shift+X)
+3. Tìm "Python" của Microsoft → Install
+
+## 1.4 Chương Trình Đầu Tiên
+
+### Cách 1: File .py
+
+Tạo file `hello.py`:
 
 ```python
-# Chuong trinh dau tien
-print("Xin chao, Python!")
+# Chương trình đầu tiên
+print("Xin chào, Python! 🐍")
 
-# In nhieu dong
-print("Toi dang hoc Python")
-print("Python rat thu vi!")
-
-# Phep tinh don gian
-print(f"2 + 3 = {2 + 3}")
-print(f"10 / 3 = {10 / 3:.2f}")
+# Biến và in ra
+ten = "Bạn"
+print(f"Xin chào, {ten}! Chào mừng đến với Python.")
 ```
 
-Chay chuong trinh:
+Chạy:
 ```bash
 python3 hello.py
 ```
 
-Ket qua:
-```
-Xin chao, Python!
-Toi dang hoc Python
-Python rat thu vi!
-2 + 3 = 5
-10 / 3 = 3.33
-```
-
-## 1.8 Python Interactive Shell (REPL)
+### Cách 2: Interactive (REPL)
 
 ```bash
-$ python3
-Python 3.12.0 (...)
+python3
+>>> print("Hello!")
+Hello!
 >>> 2 + 3
 5
->>> print("Hello")
-Hello
 >>> exit()
 ```
 
-REPL (Read-Eval-Print Loop) rat huu ich de thu nghiem nhanh cac doan code.
+## 1.5 Virtual Environment (Môi Trường Ảo)
 
-## Bai Tap
+```bash
+# Tạo virtual environment
+python3 -m venv myenv
 
-1. Cai dat Python 3.12+ tren may tinh cua ban
-2. Cai dat VS Code va extension Python
-3. Tao moi truong ao va kich hoat no
-4. Viet chuong trinh in ra ten, tuoi va so thich cua ban
-5. Su dung Python REPL de thuc hien cac phep tinh: cong, tru, nhan, chia, luy thua
-6. Tim hieu them ve `pip` bang lenh `pip --help`
+# Kích hoạt
+# Linux/Mac:
+source myenv/bin/activate
+# Windows:
+myenv\Scripts\activate
 
-## Tai Lieu Tham Khao
+# Cài package trong venv
+pip install requests
 
-- [Python Official Documentation](https://docs.python.org/3/)
-- [Python Tutorial](https://docs.python.org/3/tutorial/)
-- [Real Python](https://realpython.com)
+# Thoát venv
+deactivate
+```
+
+## 1.6 pip - Package Manager
+
+```bash
+pip install package_name       # Cài package
+pip install requests flask     # Cài nhiều package
+pip uninstall package_name     # Gỡ package
+pip list                       # Danh sách đã cài
+pip freeze > requirements.txt  # Xuất danh sách
+pip install -r requirements.txt # Cài từ file
+```
+
+## 1.7 Bài Tập
+
+1. Cài Python trên máy, kiểm tra version
+2. Viết chương trình in ra tên và tuổi của bạn
+3. Tạo virtual environment và cài thử package `requests`
+4. Thử Python REPL: tính 2**100, len("xin chào")
+
+---
+
+📖 **Tiếp theo**: [Chương 2 - Cú pháp cơ bản](../chuong-02-cu-phap-co-ban/README.md)

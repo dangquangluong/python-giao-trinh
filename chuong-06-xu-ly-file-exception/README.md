@@ -1,286 +1,211 @@
-# Chuong 6: Xu Ly File Va Exception
+# Chương 6: File I/O & Exception Handling
 
-## 6.1 Doc File
-
-### Doc toan bo file
+## 6.1 Đọc File
 
 ```python
-# Cach 1: Doc het noi dung
-with open("data.txt", "r", encoding="utf-8") as f:
-    noi_dung = f.read()
-    print(noi_dung)
+# Cách 1: open + close
+f = open("file.txt", "r", encoding="utf-8")
+noi_dung = f.read()
+f.close()
 
-# Cach 2: Doc theo dong
-with open("data.txt", "r", encoding="utf-8") as f:
+# Cách 2: with (khuyến nghị - tự đóng file)
+with open("file.txt", "r", encoding="utf-8") as f:
+    noi_dung = f.read()       # Đọc toàn bộ
+    # hoặc
+    dong = f.readline()        # Đọc 1 dòng
+    # hoặc
+    tat_ca = f.readlines()     # List các dòng
+
+# Đọc từng dòng (tiết kiệm RAM)
+with open("file.txt") as f:
     for dong in f:
         print(dong.strip())
-
-# Cach 3: Doc tat ca dong thanh list
-with open("data.txt", "r", encoding="utf-8") as f:
-    lines = f.readlines()
-    print(f"Tong so dong: {len(lines)}")
-```
-
-### Doc file CSV
-
-```python
-import csv
-
-with open("data.csv", "r", encoding="utf-8") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        print(row)
 ```
 
 ## 6.2 Ghi File
 
-### Ghi file text
-
 ```python
-# Ghi moi (ghi de)
+# Ghi đè (w)
 with open("output.txt", "w", encoding="utf-8") as f:
-    f.write("Dong thu nhat\n")
-    f.write("Dong thu hai\n")
+    f.write("Dòng 1\n")
+    f.write("Dòng 2\n")
 
-# Ghi them (append)
-with open("output.txt", "a", encoding="utf-8") as f:
-    f.write("Dong them vao\n")
+# Nối thêm (a)
+with open("output.txt", "a") as f:
+    f.write("Dòng thêm\n")
 
-# Ghi nhieu dong
-lines = ["Dong 1\n", "Dong 2\n", "Dong 3\n"]
-with open("output.txt", "w", encoding="utf-8") as f:
+# writelines
+lines = ["A\n", "B\n", "C\n"]
+with open("output.txt", "w") as f:
     f.writelines(lines)
 ```
 
-### Ghi file JSON
+## 6.3 Làm Việc Với CSV
+
+```python
+import csv
+
+# Đọc CSV
+with open("data.csv", "r") as f:
+    reader = csv.reader(f)
+    header = next(reader)  # Dòng đầu (header)
+    for row in reader:
+        print(row)
+
+# Đọc CSV thành dict
+with open("data.csv", "r") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row["ten"], row["diem"])
+
+# Ghi CSV
+data = [["ten", "tuoi", "diem"], ["A", 20, 8.5], ["B", 21, 7.0]]
+with open("output.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerows(data)
+```
+
+## 6.4 Làm Việc Với JSON
 
 ```python
 import json
 
-data = {
-    "ten": "Nguyen Van A",
-    "tuoi": 25,
-    "ky_nang": ["Python", "SQL", "Git"]
-}
-
-# Ghi ra file
-with open("data.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
-
-# Doc tu file
-with open("data.json", "r", encoding="utf-8") as f:
+# Đọc JSON
+with open("data.json", "r") as f:
     data = json.load(f)
-    print(data)
+
+# Ghi JSON
+sinh_vien = {"ten": "A", "tuoi": 22, "mon_hoc": ["Python", "SQL"]}
+with open("sv.json", "w", encoding="utf-8") as f:
+    json.dump(sinh_vien, f, ensure_ascii=False, indent=2)
+
+# String ↔ JSON
+json_str = json.dumps(sinh_vien, ensure_ascii=False)
+obj = json.loads(json_str)
 ```
 
-## 6.3 Thao Tac Voi Duong Dan
+## 6.5 Thao Tác File & Thư Mục (os, pathlib)
 
 ```python
+import os
 from pathlib import Path
 
-# Tao duong dan
-p = Path("thu_muc/file.txt")
+# os module
+os.listdir(".")              # Liệt kê thư mục
+os.makedirs("a/b/c", exist_ok=True)  # Tạo thư mục
+os.rename("old.txt", "new.txt")
+os.remove("file.txt")       # Xóa file
+os.path.exists("file.txt")  # Kiểm tra tồn tại
+os.path.getsize("file.txt") # Kích thước
 
-# Thuoc tinh
-print(p.name)       # file.txt
-print(p.stem)       # file
-print(p.suffix)     # .txt
-print(p.parent)     # thu_muc
+# pathlib (khuyến nghị, hiện đại hơn)
+p = Path("project/data")
+p.mkdir(parents=True, exist_ok=True)
 
-# Kiem tra ton tai
-print(p.exists())
-print(p.is_file())
-print(p.is_dir())
-
-# Tao thu muc
-Path("output/data").mkdir(parents=True, exist_ok=True)
-
-# Liet ke file
-for f in Path(".").glob("*.py"):
+for f in Path(".").glob("**/*.py"):  # Tìm đệ quy
     print(f)
 
-# Liet ke de quy
-for f in Path(".").rglob("*.txt"):
-    print(f)
+# Đọc/ghi nhanh
+Path("hello.txt").write_text("Xin chào!", encoding="utf-8")
+content = Path("hello.txt").read_text(encoding="utf-8")
 ```
 
-## 6.4 Exception (Ngoai Le)
+## 6.6 Exception Handling
 
-### Try/Except co ban
+### try / except / else / finally
 
 ```python
 try:
-    so = int(input("Nhap mot so: "))
-    ket_qua = 100 / so
-    print(f"100 / {so} = {ket_qua}")
+    x = int(input("Nhập số: "))
+    ket_qua = 10 / x
 except ValueError:
-    print("Loi: Ban phai nhap mot so nguyen")
+    print("Không phải số!")
 except ZeroDivisionError:
-    print("Loi: Khong the chia cho 0")
-```
-
-### Try/Except/Else/Finally
-
-```python
-try:
-    f = open("data.txt", "r")
-    noi_dung = f.read()
-except FileNotFoundError:
-    print("Loi: File khong ton tai")
-except PermissionError:
-    print("Loi: Khong co quyen truy cap")
-else:
-    # Chay khi khong co loi
-    print(f"Doc thanh cong: {len(noi_dung)} ky tu")
-finally:
-    # Luon chay du co loi hay khong
-    print("Hoan tat xu ly file")
-```
-
-### Bat nhieu exception
-
-```python
-try:
-    # Code co the gay loi
-    result = risky_operation()
-except (ValueError, TypeError) as e:
-    print(f"Loi du lieu: {e}")
+    print("Không thể chia cho 0!")
 except Exception as e:
-    print(f"Loi khong xac dinh: {e}")
+    print(f"Lỗi khác: {e}")
+else:
+    print(f"Kết quả: {ket_qua}")  # Chạy khi KHÔNG có lỗi
+finally:
+    print("Luôn chạy (dọn dẹp)")  # Luôn chạy
 ```
 
-## 6.5 Raise Exception
+### Raise Exception
 
 ```python
 def chia(a, b):
     if b == 0:
-        raise ValueError("Mau so khong the bang 0")
+        raise ValueError("Không thể chia cho 0!")
     return a / b
 
-def kiem_tra_tuoi(tuoi):
-    if not isinstance(tuoi, int):
-        raise TypeError("Tuoi phai la so nguyen")
-    if tuoi < 0 or tuoi > 150:
-        raise ValueError("Tuoi khong hop le (0-150)")
-    return tuoi
+try:
+    chia(10, 0)
+except ValueError as e:
+    print(f"Lỗi: {e}")
 ```
 
-## 6.6 Custom Exception
+### Custom Exception
 
 ```python
-class AppError(Exception):
-    """Base exception cho ung dung."""
-    pass
-
-class ValidationError(AppError):
-    """Loi xac thuc du lieu."""
+class ValidationError(Exception):
     def __init__(self, field, message):
         self.field = field
         self.message = message
         super().__init__(f"{field}: {message}")
 
-class NotFoundError(AppError):
-    """Loi khong tim thay."""
-    def __init__(self, resource, id):
-        self.resource = resource
-        self.id = id
-        super().__init__(f"{resource} voi id={id} khong ton tai")
+class TuoiKhongHopLe(ValidationError):
+    pass
 
-# Su dung
-def tao_user(ten, email):
-    if not ten:
-        raise ValidationError("ten", "Khong duoc de trong")
-    if "@" not in email:
-        raise ValidationError("email", "Email khong hop le")
-    return {"ten": ten, "email": email}
+def kiem_tra_tuoi(tuoi):
+    if not isinstance(tuoi, int):
+        raise TuoiKhongHopLe("tuoi", "phải là số nguyên")
+    if tuoi < 0 or tuoi > 150:
+        raise TuoiKhongHopLe("tuoi", f"{tuoi} không hợp lệ (0-150)")
+    return True
 
 try:
-    user = tao_user("", "test@example.com")
-except ValidationError as e:
-    print(f"Loi: {e}")
-    print(f"Field: {e.field}")
+    kiem_tra_tuoi(200)
+except TuoiKhongHopLe as e:
+    print(f"❌ {e}")
 ```
 
 ## 6.7 Context Manager
 
-### Su dung with
-
 ```python
-# with tu dong dong file khi xong
-with open("data.txt", "r") as f:
-    data = f.read()
-# f da duoc dong o day
-```
-
-### Tao context manager bang class
-
-```python
-class DatabaseConnection:
-    def __init__(self, host, db_name):
-        self.host = host
-        self.db_name = db_name
-        self.connection = None
-    
+class Timer:
+    """Context manager đo thời gian"""
     def __enter__(self):
-        print(f"Ket noi den {self.host}/{self.db_name}")
-        self.connection = f"Connection to {self.db_name}"
+        import time
+        self.start = time.time()
         return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        print("Dong ket noi")
-        self.connection = None
-        return False  # Khong an exception
 
-with DatabaseConnection("localhost", "mydb") as db:
-    print(f"Dang dung: {db.connection}")
-```
+    def __exit__(self, *args):
+        import time
+        self.elapsed = time.time() - self.start
+        print(f"Thời gian: {self.elapsed:.4f}s")
 
-### Tao context manager bang contextmanager decorator
+with Timer():
+    sum(range(1_000_000))
 
-```python
+# Hoặc dùng contextlib
 from contextlib import contextmanager
 
 @contextmanager
-def timer(label):
-    """Context manager do thoi gian."""
-    import time
-    start = time.time()
-    print(f"[{label}] Bat dau...")
+def managed_file(path, mode):
+    f = open(path, mode)
     try:
-        yield
+        yield f
     finally:
-        elapsed = time.time() - start
-        print(f"[{label}] Hoan tat trong {elapsed:.4f}s")
-
-with timer("Tinh toan"):
-    total = sum(range(1000000))
-    print(f"Tong: {total}")
+        f.close()
 ```
 
-## 6.8 Xu Ly File Nhi Phan
+## 6.8 Bài Tập
 
-```python
-# Doc file nhi phan
-with open("image.png", "rb") as f:
-    data = f.read()
-    print(f"Kich thuoc: {len(data)} bytes")
+1. Đọc file text, đếm số dòng/từ/ký tự
+2. Đọc CSV sinh viên, tính ĐTB và xuất file JSON
+3. Viết hàm safe_divide với exception handling
+4. Tạo context manager `@log_to_file` ghi log vào file
 
-# Ghi file nhi phan
-with open("copy.png", "wb") as f:
-    f.write(data)
-```
+---
 
-## Bai Tap
-
-1. Viet chuong trinh doc file text va dem so dong, so tu, so ky tu
-2. Viet chuong trinh quan ly danh ba: them, xoa, tim, luu vao file JSON
-3. Tao custom exception cho ung dung quan ly sinh vien (DuplicateError, NotFoundError)
-4. Viet context manager `@contextmanager` de quan ly file tam (tao va tu dong xoa)
-5. Viet chuong trinh doc file CSV va tinh diem trung binh cua sinh vien
-6. Tao chuong trinh copy file voi thanh tien trinh (progress bar)
-
-## Tai Lieu Tham Khao
-
-- [Python File I/O](https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files)
-- [Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
-- [Context Managers](https://docs.python.org/3/reference/datamodel.html#context-managers)
+📖 **Trước đó**: [Chương 5](../chuong-05-oop/README.md) | **Tiếp theo**: [Chương 7](../chuong-07-cau-truc-du-lieu-nang-cao/README.md)

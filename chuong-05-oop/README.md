@@ -1,197 +1,149 @@
-# Chuong 5: Lap Trinh Huong Doi Tuong (OOP)
+# Chương 5: Lập Trình Hướng Đối Tượng (OOP)
 
-## 5.1 Class Va Object
-
-### Dinh nghia class
+## 5.1 Class & Object
 
 ```python
 class SinhVien:
-    """Class dai dien cho sinh vien."""
-    
-    def __init__(self, ten, mssv, diem_tb=0):
-        """Khoi tao doi tuong SinhVien."""
-        self.ten = ten
-        self.mssv = mssv
-        self.diem_tb = diem_tb
-    
+    # Class variable
+    truong = "ĐH Bách Khoa"
+
+    # Constructor
+    def __init__(self, ten, tuoi, diem):
+        self.ten = ten          # Instance variable
+        self.tuoi = tuoi
+        self.diem = diem
+
+    # Method
     def xep_loai(self):
-        """Xep loai hoc luc."""
-        if self.diem_tb >= 9:
-            return "Xuat sac"
-        elif self.diem_tb >= 8:
-            return "Gioi"
-        elif self.diem_tb >= 7:
-            return "Kha"
-        elif self.diem_tb >= 5:
-            return "Trung binh"
-        return "Yeu"
-    
+        if self.diem >= 8.5:
+            return "Giỏi"
+        elif self.diem >= 7.0:
+            return "Khá"
+        elif self.diem >= 5.0:
+            return "Trung bình"
+        return "Yếu"
+
     def __str__(self):
-        return f"SinhVien({self.ten}, {self.mssv}, {self.diem_tb})"
+        return f"{self.ten} ({self.tuoi} tuổi) - {self.xep_loai()}"
 
-# Tao doi tuong
-sv1 = SinhVien("Nguyen Van A", "SV001", 8.5)
-sv2 = SinhVien("Tran Thi B", "SV002", 9.2)
-
-print(sv1)              # SinhVien(Nguyen Van A, SV001, 8.5)
-print(sv1.xep_loai())   # Gioi
+# Tạo object
+sv1 = SinhVien("Nguyễn A", 20, 8.5)
+sv2 = SinhVien("Trần B", 21, 7.2)
+print(sv1)
+print(sv2)
+print(f"Trường: {SinhVien.truong}")
 ```
 
-### Thuoc tinh class va instance
-
-```python
-class NhanVien:
-    # Thuoc tinh class (chung cho tat ca doi tuong)
-    cong_ty = "ABC Corp"
-    so_nhan_vien = 0
-    
-    def __init__(self, ten, luong):
-        # Thuoc tinh instance (rieng moi doi tuong)
-        self.ten = ten
-        self.luong = luong
-        NhanVien.so_nhan_vien += 1
-    
-    @classmethod
-    def tong_nhan_vien(cls):
-        return cls.so_nhan_vien
-    
-    @staticmethod
-    def tinh_thue(luong):
-        if luong > 10000000:
-            return luong * 0.1
-        return 0
-```
-
-## 5.2 Ke Thua (Inheritance)
-
-### Ke thua don
+## 5.2 Kế Thừa (Inheritance)
 
 ```python
 class DongVat:
     def __init__(self, ten, tuoi):
         self.ten = ten
         self.tuoi = tuoi
-    
+
     def keu(self):
         return "..."
-    
+
     def __str__(self):
-        return f"{self.ten} ({self.tuoi} tuoi)"
+        return f"{self.ten} ({self.tuoi} tuổi)"
 
 class Cho(DongVat):
     def __init__(self, ten, tuoi, giong):
-        super().__init__(ten, tuoi)
+        super().__init__(ten, tuoi)  # Gọi constructor cha
         self.giong = giong
-    
+
     def keu(self):
-        return "Gau gau!"
+        return "Gâu gâu! 🐕"
 
 class Meo(DongVat):
     def keu(self):
-        return "Meo meo!"
+        return "Meo meo! 🐱"
 
-# Su dung
-dog = Cho("Buddy", 3, "Golden")
-cat = Meo("Kitty", 2)
+# Sử dụng
+rex = Cho("Rex", 3, "Husky")
+miu = Meo("Miu", 2)
 
-print(f"{dog} - {dog.keu()}")  # Buddy (3 tuoi) - Gau gau!
-print(f"{cat} - {cat.keu()}")  # Kitty (2 tuoi) - Meo meo!
+for con in [rex, miu]:
+    print(f"{con} - {con.keu()}")
+
+print(isinstance(rex, DongVat))  # True
 ```
 
-### Ke thua nhieu lop
-
-```python
-class Flyable:
-    def fly(self):
-        return "Dang bay..."
-
-class Swimmable:
-    def swim(self):
-        return "Dang boi..."
-
-class Duck(DongVat, Flyable, Swimmable):
-    def keu(self):
-        return "Quack quack!"
-
-duck = Duck("Donald", 1)
-print(duck.fly())   # Dang bay...
-print(duck.swim())  # Dang boi...
-print(duck.keu())   # Quack quack!
-```
-
-## 5.3 Da Hinh (Polymorphism)
+## 5.3 Đa Hình (Polymorphism)
 
 ```python
 class HinhHoc:
     def dien_tich(self):
-        raise NotImplementedError("Lop con phai override")
-    
-    def chu_vi(self):
-        raise NotImplementedError("Lop con phai override")
+        raise NotImplementedError
+
+    def __str__(self):
+        return f"{self.__class__.__name__}: S={self.dien_tich():.2f}"
 
 class HinhTron(HinhHoc):
     def __init__(self, ban_kinh):
         self.ban_kinh = ban_kinh
-    
+
     def dien_tich(self):
-        import math
-        return math.pi * self.ban_kinh ** 2
-    
-    def chu_vi(self):
-        import math
-        return 2 * math.pi * self.ban_kinh
+        return 3.14159 * self.ban_kinh ** 2
+
+class HinhVuong(HinhHoc):
+    def __init__(self, canh):
+        self.canh = canh
+
+    def dien_tich(self):
+        return self.canh ** 2
 
 class HinhChuNhat(HinhHoc):
-    def __init__(self, dai, rong):
-        self.dai = dai
+    def __init__(self, rong, dai):
         self.rong = rong
-    
-    def dien_tich(self):
-        return self.dai * self.rong
-    
-    def chu_vi(self):
-        return 2 * (self.dai + self.rong)
+        self.dai = dai
 
-# Da hinh
-shapes = [HinhTron(5), HinhChuNhat(4, 6), HinhTron(3)]
-for shape in shapes:
-    print(f"{shape.__class__.__name__}: DT={shape.dien_tich():.2f}, CV={shape.chu_vi():.2f}")
+    def dien_tich(self):
+        return self.rong * self.dai
+
+# Đa hình - cùng method, khác behavior
+shapes = [HinhTron(5), HinhVuong(4), HinhChuNhat(3, 7)]
+for s in shapes:
+    print(s)
+
+tong = sum(s.dien_tich() for s in shapes)
+print(f"Tổng diện tích: {tong:.2f}")
 ```
 
-## 5.4 Encapsulation (Dong Goi)
+## 5.4 Encapsulation (Đóng Gói)
 
 ```python
 class TaiKhoanNganHang:
-    def __init__(self, chu_tai_khoan, so_du=0):
-        self._chu_tai_khoan = chu_tai_khoan  # Protected
-        self.__so_du = so_du                 # Private
-    
+    def __init__(self, ten, so_du=0):
+        self.ten = ten
+        self.__so_du = so_du      # Private (name mangling)
+        self._ma_pin = "1234"     # Protected (convention)
+
     @property
     def so_du(self):
-        """Getter cho so du."""
-        return self.__so_du
-    
-    @property
-    def chu_tai_khoan(self):
-        return self._chu_tai_khoan
-    
-    def nap_tien(self, so_tien):
-        if so_tien <= 0:
-            raise ValueError("So tien phai lon hon 0")
-        self.__so_du += so_tien
-        return self.__so_du
-    
-    def rut_tien(self, so_tien):
-        if so_tien <= 0:
-            raise ValueError("So tien phai lon hon 0")
-        if so_tien > self.__so_du:
-            raise ValueError("So du khong du")
-        self.__so_du -= so_tien
+        """Getter"""
         return self.__so_du
 
-tk = TaiKhoanNganHang("An", 1000000)
-tk.nap_tien(500000)
-print(f"So du: {tk.so_du:,} VND")  # 1,500,000 VND
+    def nap_tien(self, so_tien):
+        if so_tien > 0:
+            self.__so_du += so_tien
+            print(f"✅ Nạp {so_tien:,}đ. Số dư: {self.__so_du:,}đ")
+        else:
+            print("❌ Số tiền không hợp lệ!")
+
+    def rut_tien(self, so_tien):
+        if 0 < so_tien <= self.__so_du:
+            self.__so_du -= so_tien
+            print(f"✅ Rút {so_tien:,}đ. Số dư: {self.__so_du:,}đ")
+        else:
+            print("❌ Không đủ tiền hoặc số tiền không hợp lệ!")
+
+tk = TaiKhoanNganHang("Nguyễn A", 1_000_000)
+tk.nap_tien(500_000)
+tk.rut_tien(200_000)
+print(f"Số dư: {tk.so_du:,}đ")
+# tk.__so_du = 999  # ❌ Không truy cập trực tiếp được
 ```
 
 ## 5.5 Magic Methods (Dunder Methods)
@@ -201,127 +153,112 @@ class Vector:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-    
+
     def __repr__(self):
         return f"Vector({self.x}, {self.y})"
-    
+
     def __str__(self):
         return f"({self.x}, {self.y})"
-    
+
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y)
-    
+
     def __sub__(self, other):
         return Vector(self.x - other.x, self.y - other.y)
-    
+
     def __mul__(self, scalar):
         return Vector(self.x * scalar, self.y * scalar)
-    
+
     def __abs__(self):
-        return (self.x ** 2 + self.y ** 2) ** 0.5
-    
+        return (self.x**2 + self.y**2) ** 0.5
+
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
-    
+
     def __len__(self):
         return 2
-    
-    def __getitem__(self, index):
-        if index == 0:
-            return self.x
-        elif index == 1:
-            return self.y
-        raise IndexError("Chi co index 0 va 1")
 
-v1 = Vector(3, 4)
-v2 = Vector(1, 2)
-
-print(f"v1 = {v1}")           # (3, 4)
-print(f"v1 + v2 = {v1 + v2}") # (4, 6)
-print(f"v1 - v2 = {v1 - v2}") # (2, 2)
-print(f"v1 * 3 = {v1 * 3}")   # (9, 12)
-print(f"|v1| = {abs(v1):.2f}") # 5.00
+a = Vector(1, 2)
+b = Vector(3, 4)
+print(f"a + b = {a + b}")
+print(f"a * 3 = {a * 3}")
+print(f"|b| = {abs(b):.2f}")
 ```
 
-## 5.6 Abstract Class
+## 5.6 Class Methods & Static Methods
+
+```python
+class NhanVien:
+    so_nhan_vien = 0
+
+    def __init__(self, ten, luong):
+        self.ten = ten
+        self.luong = luong
+        NhanVien.so_nhan_vien += 1
+
+    @classmethod
+    def tu_chuoi(cls, chuoi):
+        """Tạo từ chuỗi 'ten-luong'"""
+        ten, luong = chuoi.split("-")
+        return cls(ten, int(luong))
+
+    @staticmethod
+    def la_ngay_lam_viec(ngay):
+        """Kiểm tra ngày làm việc (0=T2, 6=CN)"""
+        return ngay < 5
+
+# Sử dụng
+nv1 = NhanVien("An", 15_000_000)
+nv2 = NhanVien.tu_chuoi("Bình-20000000")  # classmethod
+
+print(f"Số NV: {NhanVien.so_nhan_vien}")
+print(f"T2 là ngày làm việc: {NhanVien.la_ngay_lam_viec(0)}")
+```
+
+## 5.7 Abstract Class
 
 ```python
 from abc import ABC, abstractmethod
 
-class Shape(ABC):
-    """Abstract class cho hinh hoc."""
-    
+class Database(ABC):
     @abstractmethod
-    def area(self):
+    def connect(self):
         pass
-    
+
     @abstractmethod
-    def perimeter(self):
+    def query(self, sql):
         pass
-    
-    def describe(self):
-        return f"{self.__class__.__name__}: DT={self.area():.2f}, CV={self.perimeter():.2f}"
 
-class Circle(Shape):
-    def __init__(self, radius):
-        self.radius = radius
-    
-    def area(self):
-        import math
-        return math.pi * self.radius ** 2
-    
-    def perimeter(self):
-        import math
-        return 2 * math.pi * self.radius
+    def close(self):
+        print("Đóng kết nối")
 
-# shape = Shape()  # TypeError: Can't instantiate abstract class
-circle = Circle(5)
-print(circle.describe())
+class MySQL(Database):
+    def connect(self):
+        print("Kết nối MySQL...")
+
+    def query(self, sql):
+        print(f"MySQL query: {sql}")
+
+class PostgreSQL(Database):
+    def connect(self):
+        print("Kết nối PostgreSQL...")
+
+    def query(self, sql):
+        print(f"PostgreSQL query: {sql}")
+
+# db = Database()  # ❌ Không thể khởi tạo abstract class
+db = MySQL()
+db.connect()
+db.query("SELECT * FROM users")
 ```
 
-## 5.7 Property Va Descriptor
+## 5.8 Bài Tập
 
-```python
-class NhietDo:
-    def __init__(self, celsius=0):
-        self._celsius = celsius
-    
-    @property
-    def celsius(self):
-        return self._celsius
-    
-    @celsius.setter
-    def celsius(self, value):
-        if value < -273.15:
-            raise ValueError("Nhiet do khong the thap hon -273.15C")
-        self._celsius = value
-    
-    @property
-    def fahrenheit(self):
-        return self._celsius * 9/5 + 32
-    
-    @fahrenheit.setter
-    def fahrenheit(self, value):
-        self._celsius = (value - 32) * 5/9
+1. Tạo class `SanPham` với tên, giá, số lượng. Thêm method giảm_gia(%), tong_gia_tri()
+2. Hệ thống class: `PhuongTien` (cha) → `XeHoi`, `XeMay`, `XeDap` (con)
+3. Class `Matrix` hỗ trợ phép +, *, str
+4. Class `LinkedList` với insert, delete, search, display
 
-temp = NhietDo(100)
-print(f"{temp.celsius}C = {temp.fahrenheit}F")  # 100C = 212.0F
+---
 
-temp.fahrenheit = 72
-print(f"{temp.celsius:.1f}C = {temp.fahrenheit}F")  # 22.2C = 72.0F
-```
-
-## Bai Tap
-
-1. Tao class `SinhVien` voi thuoc tinh ten, mssv, danh sach diem. Them phuong thuc tinh diem TB va xep loai.
-2. Tao he thong class ke thua: `PhuongTien` -> `Oto`, `XeMay`, `XeDap` voi cac thuoc tinh va phuong thuc phu hop.
-3. Implement class `Matrix` voi magic methods: `__add__`, `__mul__`, `__str__`, `__eq__`
-4. Tao class `BankAccount` voi property bao ve so_du, phuong thuc nap/rut tien co kiem tra hop le.
-5. Su dung ABC tao abstract class `Database` voi cac method: connect, query, close. Implement `SQLiteDB` va `MemoryDB`.
-6. Tao class `Stack` va `Queue` voi cac method push/pop/peek/is_empty.
-
-## Tai Lieu Tham Khao
-
-- [Python Classes](https://docs.python.org/3/tutorial/classes.html)
-- [Data Model](https://docs.python.org/3/reference/datamodel.html)
-- [ABC Module](https://docs.python.org/3/library/abc.html)
+📖 **Trước đó**: [Chương 4](../chuong-04-ham-va-module/README.md) | **Tiếp theo**: [Chương 6](../chuong-06-xu-ly-file-exception/README.md)

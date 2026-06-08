@@ -1,342 +1,281 @@
-# Chuong 9: Du An Thuc Hanh
+# Chương 9: Dự Án Thực Hành
 
-## Tong Quan
+## Dự Án 1: Todo CLI App ⭐⭐
 
-Chuong nay bao gom 4 du an thuc hanh giup ban ap dung tat ca kien thuc da hoc tu chuong 1 den chuong 8.
+### Mô Tả
+Ứng dụng quản lý công việc trên terminal.
 
-## Du An 1: CLI Todo App
+### Tính Năng
+- Thêm/xóa/sửa task
+- Đánh dấu hoàn thành
+- Lưu vào file JSON
+- Lọc theo trạng thái
 
-### Mo ta
-Ung dung quan ly cong viec tren terminal voi cac chuc nang: them, xoa, danh dau hoan thanh, luu vao file.
-
-### Cong nghe su dung
-- `argparse` hoac `click` cho CLI
-- File JSON de luu du lieu
-- Dataclass cho model
-
-### Tinh nang
-- Them task moi
-- Liet ke tat ca task
-- Danh dau task hoan thanh
-- Xoa task
-- Loc theo trang thai (done/pending)
-- Luu/Doc tu file JSON
-
-### Cau truc
-
-```
-todo-cli/
-    todo.py          # Entry point
-    models.py        # Dataclass Task
-    storage.py       # Doc/ghi JSON
-    requirements.txt
-```
-
-### Vi du su dung
-
+### Sử Dụng
 ```bash
-python todo.py add "Hoc Python chuong 9"
+python todo.py add "Học Python"
 python todo.py list
 python todo.py done 1
 python todo.py delete 1
-python todo.py list --filter pending
 ```
 
-## Du An 2: Web Scraper
+### Code Khung
 
-### Mo ta
-Chuong trinh thu thap du lieu tu trang web, xu ly va luu vao file CSV.
+```python
+import json
+import sys
+from pathlib import Path
+from datetime import datetime
 
-### Cong nghe su dung
-- `requests` de tai trang web
-- `beautifulsoup4` de parse HTML
-- `pandas` de xu ly va xuat du lieu
-- `time` de rate limiting
+DATA_FILE = Path("todos.json")
 
-### Tinh nang
-- Tai noi dung trang web
-- Parse HTML lay du lieu can thiet
-- Xu ly pagination (nhieu trang)
-- Luu ket qua ra CSV
-- Xu ly loi va retry
+def load_todos():
+    if DATA_FILE.exists():
+        return json.loads(DATA_FILE.read_text(encoding="utf-8"))
+    return []
 
-### Cau truc
+def save_todos(todos):
+    DATA_FILE.write_text(
+        json.dumps(todos, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
 
+def add_todo(text):
+    todos = load_todos()
+    todo = {
+        "id": len(todos) + 1,
+        "text": text,
+        "done": False,
+        "created": datetime.now().isoformat()
+    }
+    todos.append(todo)
+    save_todos(todos)
+    print(f"✅ Đã thêm: {text}")
+
+def list_todos(show_all=True):
+    todos = load_todos()
+    if not todos:
+        print("📋 Không có task nào!")
+        return
+    for t in todos:
+        status = "✅" if t["done"] else "⬜"
+        if show_all or not t["done"]:
+            print(f"  {status} [{t['id']}] {t['text']}")
+
+def mark_done(todo_id):
+    todos = load_todos()
+    for t in todos:
+        if t["id"] == todo_id:
+            t["done"] = True
+            save_todos(todos)
+            print(f"✅ Hoàn thành: {t['text']}")
+            return
+    print(f"❌ Không tìm thấy task #{todo_id}")
+
+def delete_todo(todo_id):
+    todos = load_todos()
+    todos = [t for t in todos if t["id"] != todo_id]
+    save_todos(todos)
+    print(f"🗑️ Đã xóa task #{todo_id}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Sử dụng: python todo.py [add|list|done|delete] [args]")
+        sys.exit(1)
+
+    cmd = sys.argv[1]
+    if cmd == "add" and len(sys.argv) > 2:
+        add_todo(" ".join(sys.argv[2:]))
+    elif cmd == "list":
+        list_todos()
+    elif cmd == "done" and len(sys.argv) > 2:
+        mark_done(int(sys.argv[2]))
+    elif cmd == "delete" and len(sys.argv) > 2:
+        delete_todo(int(sys.argv[2]))
+    else:
+        print("Lệnh không hợp lệ!")
 ```
-web-scraper/
-    scraper.py       # Logic chinh
-    parser.py        # Parse HTML
-    exporter.py      # Xuat CSV/JSON
-    config.py        # Cau hinh
-    requirements.txt
-```
 
-### Vi du code
+---
+
+## Dự Án 2: Web Scraper ⭐⭐
+
+### Mô Tả
+Thu thập dữ liệu từ website.
+
+```bash
+pip install beautifulsoup4 requests
+```
 
 ```python
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
-import time
 
-def scrape_quotes(base_url, max_pages=5):
-    """Thu thap quotes tu trang web."""
-    all_quotes = []
-    
-    for page in range(1, max_pages + 1):
-        url = f"{base_url}/page/{page}/"
-        print(f"Dang tai trang {page}...")
-        
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            print(f"Loi: {e}")
-            break
-        
-        soup = BeautifulSoup(response.text, "html.parser")
-        quotes = soup.select(".quote")
-        
-        if not quotes:
-            break
-        
-        for quote in quotes:
-            text = quote.select_one(".text").get_text()
-            author = quote.select_one(".author").get_text()
-            tags = [tag.get_text() for tag in quote.select(".tag")]
-            all_quotes.append({
-                "text": text,
-                "author": author,
-                "tags": ", ".join(tags)
+def scrape_news(url):
+    """Lấy tiêu đề tin tức"""
+    resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    soup = BeautifulSoup(resp.text, "html.parser")
+
+    articles = []
+    for tag in soup.find_all("h2"):
+        link = tag.find("a")
+        if link:
+            articles.append({
+                "title": link.get_text(strip=True),
+                "url": link.get("href", "")
             })
-        
-        time.sleep(1)  # Rate limiting
-    
-    return pd.DataFrame(all_quotes)
 
-# Su dung
-df = scrape_quotes("http://quotes.toscrape.com")
-df.to_csv("quotes.csv", index=False)
-print(f"Da thu thap {len(df)} quotes")
+    return articles
+
+if __name__ == "__main__":
+    articles = scrape_news("https://news.ycombinator.com")
+    for i, a in enumerate(articles[:10], 1):
+        print(f"{i}. {a['title']}")
+        print(f"   {a['url']}\n")
 ```
 
-## Du An 3: REST API
+---
 
-### Mo ta
-Xay dung REST API quan ly sinh vien voi FastAPI, bao gom authentication va CRUD operations.
+## Dự Án 3: REST API (FastAPI) ⭐⭐⭐
 
-### Cong nghe su dung
-- `fastapi` cho web framework
-- `uvicorn` cho ASGI server
-- `pydantic` cho validation
-- `SQLite` cho database (hoac JSON file)
-- `pytest` cho testing
+### Mô Tả
+API quản lý sách cho thư viện.
 
-### Tinh nang
-- CRUD sinh vien (Create, Read, Update, Delete)
-- Tim kiem va loc du lieu
-- Phan trang (pagination)
-- Validation du lieu dau vao
-- Error handling
-
-### Cau truc
-
+```bash
+pip install fastapi uvicorn pydantic
 ```
-student-api/
-    main.py           # FastAPI app
-    models.py         # Pydantic models
-    database.py       # Database operations
-    routers/
-        students.py   # Student routes
-    tests/
-        test_api.py   # API tests
-    requirements.txt
-```
-
-### Vi du code
 
 ```python
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
 
-app = FastAPI(title="Student Management API")
+app = FastAPI(title="API Thư Viện", version="1.0")
 
-# Models
-class StudentCreate(BaseModel):
-    ten: str = Field(..., min_length=1, max_length=100)
-    mssv: str = Field(..., pattern=r"^SV\d{3,}$")
-    email: str
-    diem_tb: float = Field(ge=0, le=10)
-    lop: str
+class Sach(BaseModel):
+    id: Optional[int] = None
+    tieu_de: str
+    tac_gia: str
+    nam: int
+    the_loai: str
 
-class StudentResponse(StudentCreate):
-    id: int
-    xep_loai: str
+db: List[Sach] = [
+    Sach(id=1, tieu_de="Clean Code", tac_gia="Robert Martin", nam=2008, the_loai="Tech"),
+    Sach(id=2, tieu_de="Python Crash Course", tac_gia="Eric Matthes", nam=2019, the_loai="Tech"),
+]
+next_id = 3
 
-# Endpoints
-@app.get("/api/students", response_model=List[StudentResponse])
-def get_students(
-    lop: Optional[str] = None,
-    min_diem: Optional[float] = None,
-    skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=10, ge=1, le=100)
-):
-    """Lay danh sach sinh vien voi filter va pagination."""
-    pass
+@app.get("/books", response_model=List[Sach])
+def get_books(the_loai: Optional[str] = None):
+    if the_loai:
+        return [s for s in db if s.the_loai.lower() == the_loai.lower()]
+    return db
 
-@app.post("/api/students", response_model=StudentResponse, status_code=201)
-def create_student(student: StudentCreate):
-    """Them sinh vien moi."""
-    pass
+@app.get("/books/{book_id}", response_model=Sach)
+def get_book(book_id: int):
+    for s in db:
+        if s.id == book_id:
+            return s
+    raise HTTPException(404, "Sách không tồn tại")
 
-@app.get("/api/students/{student_id}", response_model=StudentResponse)
-def get_student(student_id: int):
-    """Lay thong tin mot sinh vien."""
-    pass
+@app.post("/books", response_model=Sach, status_code=201)
+def create_book(sach: Sach):
+    global next_id
+    sach.id = next_id
+    next_id += 1
+    db.append(sach)
+    return sach
 
-@app.put("/api/students/{student_id}", response_model=StudentResponse)
-def update_student(student_id: int, student: StudentCreate):
-    """Cap nhat thong tin sinh vien."""
-    pass
+@app.put("/books/{book_id}", response_model=Sach)
+def update_book(book_id: int, sach_moi: Sach):
+    for i, s in enumerate(db):
+        if s.id == book_id:
+            sach_moi.id = book_id
+            db[i] = sach_moi
+            return sach_moi
+    raise HTTPException(404, "Sách không tồn tại")
 
-@app.delete("/api/students/{student_id}", status_code=204)
-def delete_student(student_id: int):
-    """Xoa sinh vien."""
-    pass
+@app.delete("/books/{book_id}")
+def delete_book(book_id: int):
+    for i, s in enumerate(db):
+        if s.id == book_id:
+            db.pop(i)
+            return {"message": f"Đã xóa sách #{book_id}"}
+    raise HTTPException(404, "Sách không tồn tại")
+
+# Chạy: uvicorn main:app --reload
+# Docs: http://localhost:8000/docs
 ```
 
-## Du An 4: Automation Script
+---
 
-### Mo ta
-Bo cong cu tu dong hoa cac tac vu hang ngay: sao luu file, gui email bao cao, giam sat he thong.
+## Dự Án 4: Automation Script ⭐⭐
 
-### Cong nghe su dung
-- `os` va `pathlib` cho file operations
-- `shutil` cho copy/archive
-- `schedule` cho lap lich
-- `logging` cho ghi log
-- `smtplib` cho gui email (optional)
-
-### Tinh nang
-- Sao luu thu muc theo lich
-- Doc va phan tich file log
-- Giam sat dung luong o dia
-- Tao bao cao tu dong
-- Gui thong bao khi co su co
-
-### Cau truc
-
-```
-automation/
-    backup.py         # Sao luu file
-    monitor.py        # Giam sat he thong
-    report.py         # Tao bao cao
-    scheduler.py      # Lap lich chay
-    config.yaml       # Cau hinh
-    requirements.txt
-```
-
-### Vi du code
+### Mô Tả
+Script tự động hóa: backup file, gửi email, monitor.
 
 ```python
-import os
 import shutil
-from pathlib import Path
+import os
 from datetime import datetime
-import logging
+from pathlib import Path
 
-# Cau hinh logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("backup.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def backup_directory(source, backup_dir, max_backups=5):
-    """Sao luu thu muc vao file zip."""
-    source = Path(source)
-    backup_dir = Path(backup_dir)
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Tao ten file backup voi timestamp
+def backup_directory(source, dest_base):
+    """Backup thư mục với timestamp"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_name = f"{source.name}_{timestamp}"
-    backup_path = backup_dir / backup_name
-    
-    # Tao archive
-    logger.info(f"Bat dau sao luu: {source} -> {backup_path}.zip")
-    shutil.make_archive(str(backup_path), "zip", str(source))
-    
-    size = os.path.getsize(f"{backup_path}.zip")
-    logger.info(f"Hoan tat! Kich thuoc: {size / 1024 / 1024:.2f} MB")
-    
-    # Xoa backup cu neu vuot qua so luong toi da
-    backups = sorted(backup_dir.glob(f"{source.name}_*.zip"))
-    while len(backups) > max_backups:
-        oldest = backups.pop(0)
-        oldest.unlink()
-        logger.info(f"Da xoa backup cu: {oldest.name}")
-    
-    return f"{backup_path}.zip"
+    dest = Path(dest_base) / f"backup_{timestamp}"
 
-def check_disk_usage(threshold=80):
-    """Kiem tra dung luong dia."""
-    import shutil
+    shutil.copytree(source, dest)
+    print(f"✅ Backup: {source} → {dest}")
+
+    # Nén
+    archive = shutil.make_archive(str(dest), "zip", dest)
+    shutil.rmtree(dest)  # Xóa thư mục, giữ zip
+    print(f"📦 Nén: {archive}")
+    return archive
+
+def cleanup_old_backups(backup_dir, keep=5):
+    """Giữ lại N backup mới nhất"""
+    backups = sorted(Path(backup_dir).glob("backup_*.zip"), reverse=True)
+    for old in backups[keep:]:
+        old.unlink()
+        print(f"🗑️ Xóa backup cũ: {old.name}")
+
+def disk_usage_report():
+    """Báo cáo dung lượng ổ đĩa"""
     total, used, free = shutil.disk_usage("/")
-    percent = (used / total) * 100
-    
-    info = {
-        "total_gb": total / (2**30),
-        "used_gb": used / (2**30),
-        "free_gb": free / (2**30),
-        "percent_used": percent
-    }
-    
-    if percent > threshold:
-        logger.warning(f"CANH BAO: Dia da su dung {percent:.1f}%!")
-    else:
-        logger.info(f"Disk OK: {percent:.1f}% da su dung")
-    
-    return info
+    print(f"💾 Disk: {used//(2**30)}GB / {total//(2**30)}GB (Free: {free//(2**30)}GB)")
+
+if __name__ == "__main__":
+    disk_usage_report()
+    # backup_directory("/path/to/project", "/path/to/backups")
+    # cleanup_old_backups("/path/to/backups", keep=5)
 ```
 
-## Huong Dan Thuc Hien
+---
 
-### Buoc 1: Chon du an
-Chon 1-2 du an phu hop voi trinh do va so thich cua ban.
+## Dự Án Nâng Cao (Tự Thực Hiện)
 
-### Buoc 2: Lap ke hoach
-- Xac dinh cac tinh nang can lam
-- Chia nho thanh cac task
-- Thiet ke cau truc thu muc
+| # | Dự Án | Thư Viện |
+|---|--------|----------|
+| 5 | Chat bot Telegram | python-telegram-bot |
+| 6 | Dashboard web | Streamlit / Dash |
+| 7 | Image processor | Pillow |
+| 8 | Database migration tool | Alembic |
+| 9 | Task scheduler | APScheduler |
+| 10 | CLI file manager | rich, click |
 
-### Buoc 3: Code va Test
-- Code tung tinh nang mot
-- Viet test cho moi tinh nang
-- Commit thuong xuyen
+---
 
-### Buoc 4: Hoan thien
-- Them error handling
-- Viet documentation
-- Refactor code
+## 🎓 Tài Nguyên Tiếp Theo
 
-## Bai Tap
+- [Real Python](https://realpython.com/)
+- [Python Design Patterns](https://python-patterns.guide/)
+- [Full Stack Python](https://www.fullstackpython.com/)
+- [Awesome Python](https://github.com/vinta/awesome-python)
 
-1. Hoan thanh du an CLI Todo App voi day du chuc nang
-2. Xay dung web scraper thu thap du lieu tu mot trang web ban quan tam
-3. Tao REST API hoan chinh voi CRUD, validation, va test
-4. Viet automation script sao luu thu muc quan trong tren may tinh cua ban
-5. Ket hop: Tao API + CLI client goi API do
-6. Them feature cho bat ky du an nao: logging, configuration file, error handling nang cao
+---
 
-## Tai Lieu Tham Khao
+🎉 **Chúc mừng hoàn thành giáo trình Python!**
 
-- [Click Documentation](https://click.palletsprojects.com/)
-- [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/doc/)
-- [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/)
-- [Python Automation](https://automatetheboringstuff.com/)
+📖 **Trước đó**: [Chương 8](../chuong-08-thu-vien-pho-bien/README.md)

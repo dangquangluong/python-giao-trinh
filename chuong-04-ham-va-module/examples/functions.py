@@ -1,151 +1,87 @@
-"""
-Chuong 4: Vi du ve ham va decorator
-"""
-
+# Ví dụ về hàm, lambda, decorator
 import time
-from functools import wraps
 
-
-# === Ham co ban ===
-def chao(ten, loi_chao="Xin chao"):
-    """In loi chao."""
-    return f"{loi_chao}, {ten}!"
-
-
-# === Ham voi *args, **kwargs ===
-def tinh_tong(*args):
-    """Tinh tong cac so."""
-    return sum(args)
-
-
-def tao_profile(**kwargs):
-    """Tao profile tu cac keyword arguments."""
-    profile = {}
-    for key, value in kwargs.items():
-        profile[key] = value
-    return profile
-
-
-# === Type hints ===
-def tinh_bmi(can_nang: float, chieu_cao: float) -> tuple[float, str]:
-    """Tinh BMI va phan loai."""
+# === HÀM CƠ BẢN ===
+def tinh_bmi(can_nang, chieu_cao):
+    """Tính chỉ số BMI"""
     bmi = can_nang / (chieu_cao ** 2)
     if bmi < 18.5:
-        phan_loai = "Gay"
+        phan_loai = "Gầy"
     elif bmi < 25:
-        phan_loai = "Binh thuong"
+        phan_loai = "Bình thường"
     elif bmi < 30:
-        phan_loai = "Thua can"
+        phan_loai = "Thừa cân"
     else:
-        phan_loai = "Beo phi"
+        phan_loai = "Béo phì"
     return bmi, phan_loai
 
+bmi, loai = tinh_bmi(70, 1.75)
+print(f"BMI: {bmi:.1f} - {loai}")
 
-# === De quy ===
-def fibonacci(n: int) -> list[int]:
-    """Tra ve n so Fibonacci dau tien."""
-    if n <= 0:
-        return []
-    if n == 1:
-        return [0]
-    fib = [0, 1]
-    for _ in range(2, n):
-        fib.append(fib[-1] + fib[-2])
-    return fib
+# === *ARGS, **KWARGS ===
+def log(*args, level="INFO", **kwargs):
+    msg = " ".join(str(a) for a in args)
+    extra = ", ".join(f"{k}={v}" for k, v in kwargs.items())
+    print(f"[{level}] {msg} {extra}")
 
+log("Server started", "port", 8080, level="INFO", host="localhost")
 
-# === Decorator ===
+# === LAMBDA ===
+print("\n=== LAMBDA + SORTED ===")
+students = [
+    {"ten": "An", "diem": 8.5},
+    {"ten": "Binh", "diem": 7.0},
+    {"ten": "Cuong", "diem": 9.2},
+]
+sorted_students = sorted(students, key=lambda s: s["diem"], reverse=True)
+for s in sorted_students:
+    print(f"  {s['ten']}: {s['diem']}")
+
+# === DECORATOR ===
+print("\n=== DECORATOR ===")
+
 def timer(func):
-    """Decorator do thoi gian thuc thi."""
-    @wraps(func)
     def wrapper(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
         elapsed = time.time() - start
-        print(f"  [{func.__name__}] thoi gian: {elapsed:.6f}s")
+        print(f"  {func.__name__}: {elapsed*1000:.2f}ms")
         return result
     return wrapper
 
+@timer
+def tinh_tong(n):
+    return sum(range(n))
 
-def log(func):
-    """Decorator ghi log khi goi ham."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        print(f"  Goi {func.__name__}(args={args}, kwargs={kwargs})")
-        result = func(*args, **kwargs)
-        print(f"  Ket qua: {result}")
-        return result
-    return wrapper
+@timer
+def tinh_tong_bp(n):
+    return sum(i**2 for i in range(n))
 
+tinh_tong(1_000_000)
+tinh_tong_bp(100_000)
 
-# === Closure ===
-def tao_bo_dem(bat_dau=0):
-    """Tao bo dem su dung closure."""
-    count = [bat_dau]
+# === CLOSURE ===
+print("\n=== CLOSURE ===")
 
-    def tang():
-        count[0] += 1
-        return count[0]
+def multiplier(n):
+    def multiply(x):
+        return x * n
+    return multiply
 
-    def giam():
-        count[0] -= 1
-        return count[0]
+double = multiplier(2)
+triple = multiplier(3)
+print(f"double(5) = {double(5)}")
+print(f"triple(5) = {triple(5)}")
 
-    def gia_tri():
-        return count[0]
+# === ĐỆ QUY ===
+print("\n=== ĐỆ QUY: FIBONACCI ===")
 
-    return tang, giam, gia_tri
+def fib(n, memo={}):
+    if n <= 1:
+        return n
+    if n not in memo:
+        memo[n] = fib(n-1) + fib(n-2)
+    return memo[n]
 
-
-# === Demo ===
-if __name__ == "__main__":
-    print("=== Ham co ban ===")
-    print(chao("An"))
-    print(chao("Binh", "Hello"))
-    print()
-
-    print("=== *args ===")
-    print(f"Tong 1,2,3: {tinh_tong(1, 2, 3)}")
-    print(f"Tong 1-10: {tinh_tong(*range(1, 11))}")
-    print()
-
-    print("=== **kwargs ===")
-    profile = tao_profile(ten="An", tuoi=25, thanh_pho="Ha Noi")
-    for k, v in profile.items():
-        print(f"  {k}: {v}")
-    print()
-
-    print("=== Type hints ===")
-    bmi, loai = tinh_bmi(70, 1.75)
-    print(f"BMI: {bmi:.1f} - Phan loai: {loai}")
-    print()
-
-    print("=== Fibonacci ===")
-    print(f"10 so dau: {fibonacci(10)}")
-    print()
-
-    print("=== Decorator @timer ===")
-
-    @timer
-    def tinh_tong_lon(n):
-        return sum(range(n))
-
-    tinh_tong_lon(1000000)
-    print()
-
-    print("=== Decorator @log ===")
-
-    @log
-    def cong(a, b):
-        return a + b
-
-    cong(3, 5)
-    print()
-
-    print("=== Closure (Bo dem) ===")
-    tang, giam, gia_tri = tao_bo_dem(10)
-    print(f"  Ban dau: {gia_tri()}")
-    print(f"  Tang: {tang()}")
-    print(f"  Tang: {tang()}")
-    print(f"  Giam: {giam()}")
-    print(f"  Hien tai: {gia_tri()}")
+for i in range(1, 11):
+    print(f"  fib({i}) = {fib(i)}")

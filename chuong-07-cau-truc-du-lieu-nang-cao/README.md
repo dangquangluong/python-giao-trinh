@@ -1,329 +1,199 @@
-# Chuong 7: Cau Truc Du Lieu Nang Cao
+# Chương 7: Cấu Trúc Dữ Liệu Nâng Cao
 
-## 7.1 Module Collections
-
-### namedtuple
+## 7.1 Collections Module
 
 ```python
-from collections import namedtuple
+from collections import Counter, defaultdict, namedtuple, deque
 
-# Tao kieu namedtuple
-Point = namedtuple("Point", ["x", "y"])
-SinhVien = namedtuple("SinhVien", "ten mssv diem")
-
-p = Point(3, 4)
-print(p.x, p.y)  # 3 4
-
-sv = SinhVien("An", "SV001", 8.5)
-print(sv.ten)    # An
-print(sv[2])     # 8.5
-```
-
-### defaultdict
-
-```python
-from collections import defaultdict
-
-# Dict voi gia tri mac dinh
-word_count = defaultdict(int)
-text = "tao cam tao chuoi cam tao"
-for word in text.split():
-    word_count[word] += 1
-print(dict(word_count))  # {'tao': 3, 'cam': 2, 'chuoi': 1}
-
-# List mac dinh
-groups = defaultdict(list)
-students = [("A", "CNTT"), ("B", "KTPM"), ("C", "CNTT")]
-for name, dept in students:
-    groups[dept].append(name)
-print(dict(groups))
-```
-
-### Counter
-
-```python
-from collections import Counter
-
-# Dem phan tu
-words = ["python", "java", "python", "go", "python", "java"]
+# Counter - đếm tần suất
+words = "python python java rust python java go".split()
 counter = Counter(words)
-print(counter)                    # Counter({'python': 3, 'java': 2, 'go': 1})
-print(counter.most_common(2))     # [('python', 3), ('java', 2)]
+print(counter)                    # Counter({'python': 3, 'java': 2, ...})
+print(counter.most_common(2))    # [('python', 3), ('java', 2)]
 
-# Dem ky tu
-c = Counter("hello world")
-print(c)  # Counter({'l': 3, 'o': 2, ...})
-```
+# defaultdict - dict với giá trị mặc định
+dd = defaultdict(list)
+students = [("A", "Python"), ("B", "Java"), ("A", "SQL"), ("B", "Rust")]
+for name, lang in students:
+    dd[name].append(lang)
+print(dict(dd))  # {'A': ['Python', 'SQL'], 'B': ['Java', 'Rust']}
 
-### deque
+# namedtuple - tuple có tên
+Point = namedtuple("Point", ["x", "y"])
+p = Point(3, 4)
+print(f"({p.x}, {p.y}), distance = {(p.x**2 + p.y**2)**0.5:.2f}")
 
-```python
-from collections import deque
-
-# Queue 2 dau
+# deque - queue hai đầu (O(1) append/pop cả hai đầu)
 dq = deque([1, 2, 3])
-dq.append(4)        # Them phai
-dq.appendleft(0)    # Them trai
-dq.pop()            # Xoa phai
-dq.popleft()        # Xoa trai
-print(dq)           # deque([1, 2, 3])
-
-# Gioi han kich thuoc
-last_5 = deque(maxlen=5)
-for i in range(10):
-    last_5.append(i)
-print(last_5)  # deque([5, 6, 7, 8, 9])
+dq.appendleft(0)     # [0, 1, 2, 3]
+dq.append(4)         # [0, 1, 2, 3, 4]
+dq.popleft()         # 0
+dq.rotate(2)         # Xoay phải 2 vị trí
 ```
 
-### OrderedDict
+## 7.2 Iterators
 
 ```python
-from collections import OrderedDict
-
-# Dict giu thu tu chen (Python 3.7+ dict da giu thu tu)
-od = OrderedDict()
-od["c"] = 3
-od["a"] = 1
-od["b"] = 2
-od.move_to_end("c")  # Chuyen "c" ve cuoi
-print(od)
-```
-
-## 7.2 Iterator
-
-### Iterator protocol
-
-```python
-# Moi iterable co __iter__() tra ve iterator
-# Moi iterator co __next__() tra ve phan tu tiep theo
-
-my_list = [1, 2, 3]
-iterator = iter(my_list)
-print(next(iterator))  # 1
-print(next(iterator))  # 2
-print(next(iterator))  # 3
-# next(iterator) -> StopIteration
-```
-
-### Tao iterator tu class
-
-```python
-class CountDown:
-    """Iterator dem nguoc."""
-    
+# Iterator protocol: __iter__() + __next__()
+class DemNguoc:
     def __init__(self, start):
         self.current = start
-    
+
     def __iter__(self):
         return self
-    
+
     def __next__(self):
         if self.current <= 0:
             raise StopIteration
         self.current -= 1
         return self.current + 1
 
-for num in CountDown(5):
-    print(num)  # 5, 4, 3, 2, 1
+for n in DemNguoc(5):
+    print(n, end=" ")  # 5 4 3 2 1
 ```
 
-## 7.3 Generator
+## 7.3 Generators
 
-### Generator function
+Generator = iterator lười biếng (lazy), tiết kiệm RAM:
 
 ```python
+# Generator function (dùng yield)
 def fibonacci(n):
-    """Generator sinh n so Fibonacci."""
     a, b = 0, 1
-    count = 0
-    while count < n:
+    for _ in range(n):
         yield a
         a, b = b, a + b
-        count += 1
 
-# Su dung
-for num in fibonacci(10):
-    print(num, end=" ")
-# 0 1 1 2 3 5 8 13 21 34
+for f in fibonacci(10):
+    print(f, end=" ")  # 0 1 1 2 3 5 8 13 21 34
+
+# Generator expression (giống list comprehension nhưng dùng ())
+squares = (x**2 for x in range(1_000_000))  # Không tốn RAM!
+print(next(squares))  # 0
+print(next(squares))  # 1
+
+# Đọc file lớn
+def doc_tung_dong(filepath):
+    with open(filepath) as f:
+        for line in f:
+            yield line.strip()
+
+# Pipeline generators
+def so_chan(numbers):
+    for n in numbers:
+        if n % 2 == 0:
+            yield n
+
+def binh_phuong(numbers):
+    for n in numbers:
+        yield n ** 2
+
+nums = range(100)
+result = binh_phuong(so_chan(nums))
+print(list(result)[:10])  # [0, 4, 16, 36, 64, ...]
 ```
 
-### Generator khong gioi han
-
-```python
-def so_nguyen_to():
-    """Generator sinh so nguyen to vo han."""
-    num = 2
-    while True:
-        is_prime = True
-        for i in range(2, int(num ** 0.5) + 1):
-            if num % i == 0:
-                is_prime = False
-                break
-        if is_prime:
-            yield num
-        num += 1
-
-# Lay 10 so nguyen to dau tien
-from itertools import islice
-primes = list(islice(so_nguyen_to(), 10))
-print(primes)  # [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
-```
-
-### yield from
-
-```python
-def flatten(nested_list):
-    """Lam phang list long nhau."""
-    for item in nested_list:
-        if isinstance(item, list):
-            yield from flatten(item)
-        else:
-            yield item
-
-nested = [1, [2, 3], [4, [5, 6]], 7]
-print(list(flatten(nested)))  # [1, 2, 3, 4, 5, 6, 7]
-```
-
-## 7.4 Module Itertools
-
-```python
-import itertools
-
-# count - dem vo han
-for i in itertools.count(start=1, step=2):
-    if i > 10:
-        break
-    print(i, end=" ")  # 1 3 5 7 9
-
-# cycle - lap vo han
-colors = itertools.cycle(["do", "xanh", "vang"])
-for _, c in zip(range(6), colors):
-    print(c, end=" ")  # do xanh vang do xanh vang
-
-# chain - noi nhieu iterable
-a = [1, 2, 3]
-b = [4, 5, 6]
-print(list(itertools.chain(a, b)))  # [1, 2, 3, 4, 5, 6]
-
-# product - tich Descartes
-for item in itertools.product("AB", [1, 2]):
-    print(item)  # ('A', 1), ('A', 2), ('B', 1), ('B', 2)
-
-# combinations
-print(list(itertools.combinations("ABC", 2)))
-# [('A', 'B'), ('A', 'C'), ('B', 'C')]
-
-# permutations
-print(list(itertools.permutations("ABC", 2)))
-# [('A', 'B'), ('A', 'C'), ('B', 'A'), ('B', 'C'), ('C', 'A'), ('C', 'B')]
-
-# groupby
-data = [("An", "CNTT"), ("Binh", "KTPM"), ("Chi", "CNTT")]
-data.sort(key=lambda x: x[1])
-for key, group in itertools.groupby(data, key=lambda x: x[1]):
-    print(f"{key}: {list(group)}")
-```
-
-## 7.5 Dataclass
-
-### Dataclass co ban
-
-```python
-from dataclasses import dataclass, field
-
-@dataclass
-class SinhVien:
-    ten: str
-    mssv: str
-    diem: float = 0.0
-    
-sv = SinhVien("An", "SV001", 8.5)
-print(sv)  # SinhVien(ten='An', mssv='SV001', diem=8.5)
-```
-
-### Dataclass nang cao
+## 7.4 Dataclasses (Python 3.7+)
 
 ```python
 from dataclasses import dataclass, field
 from typing import List
 
-@dataclass(order=True)
-class Product:
-    """San pham voi sap xep theo gia."""
-    sort_index: float = field(init=False, repr=False)
+@dataclass
+class SinhVien:
     ten: str
-    gia: float
-    so_luong: int = 0
-    tags: List[str] = field(default_factory=list)
-    
-    def __post_init__(self):
-        self.sort_index = self.gia
-    
+    tuoi: int
+    diem: float = 0.0
+    mon_hoc: List[str] = field(default_factory=list)
+
     @property
-    def tong_gia_tri(self):
-        return self.gia * self.so_luong
+    def xep_loai(self):
+        if self.diem >= 8.5: return "Giỏi"
+        if self.diem >= 7.0: return "Khá"
+        return "TB"
 
-p1 = Product("Laptop", 15000000, 10)
-p2 = Product("Phone", 8000000, 20)
-p3 = Product("Tablet", 12000000, 5)
+# Tự động có __init__, __repr__, __eq__
+sv1 = SinhVien("An", 20, 8.5, ["Python", "SQL"])
+sv2 = SinhVien("Binh", 21, 7.0)
+print(sv1)
+print(f"{sv1.ten}: {sv1.xep_loai}")
 
-products = sorted([p1, p2, p3])  # Sap xep theo gia
-for p in products:
-    print(f"  {p.ten}: {p.gia:,.0f} VND x {p.so_luong}")
-```
+# So sánh
+sv3 = SinhVien("An", 20, 8.5, ["Python", "SQL"])
+print(sv1 == sv3)  # True
 
-### Frozen dataclass (immutable)
-
-```python
+# frozen=True → immutable
 @dataclass(frozen=True)
 class Point:
     x: float
     y: float
-
-p = Point(3, 4)
-# p.x = 5  # FrozenInstanceError
-print(p)
 ```
 
-## 7.6 Typing Va Type Hints Nang Cao
+## 7.5 Type Hints
 
 ```python
-from typing import List, Dict, Optional, Union, Callable, TypeVar
+from typing import List, Dict, Optional, Tuple, Union
 
-# Co ban
-def greet(name: str) -> str:
-    return f"Hello, {name}"
+def tinh_trung_binh(diem: List[float]) -> float:
+    return sum(diem) / len(diem)
 
-# Optional (co the None)
-def find_user(id: int) -> Optional[Dict]:
-    pass
+def tim_sinh_vien(
+    ten: str,
+    ds: List[Dict[str, Union[str, int]]]
+) -> Optional[Dict]:
+    for sv in ds:
+        if sv.get("ten") == ten:
+            return sv
+    return None
 
-# Union (nhieu kieu)
-def process(value: Union[int, str]) -> str:
-    return str(value)
-
-# Callable
-def apply(func: Callable[[int, int], int], a: int, b: int) -> int:
-    return func(a, b)
-
-# TypeVar (generic)
-T = TypeVar("T")
-def first(items: List[T]) -> Optional[T]:
-    return items[0] if items else None
+# Python 3.10+: dùng | thay Union
+def greet(name: str | None = None) -> str:
+    if name is None:
+        return "Hello, World!"
+    return f"Hello, {name}!"
 ```
 
-## Bai Tap
+## 7.6 Itertools
 
-1. Dung Counter dem tan suat cac tu trong mot doan van ban
-2. Viet generator sinh day so Collatz (cho so n, neu chan thi /2, le thi *3+1, cho den khi bang 1)
-3. Tao dataclass `Employee` voi cac field: ten, phong_ban, luong. Sap xep danh sach nhan vien theo luong giam dan.
-4. Dung defaultdict nhom danh sach sinh vien theo lop
-5. Viet iterator class `FileReader` doc file theo tung dong
-6. Su dung itertools.combinations de tim tat ca cac cap so trong list co tong bang mot gia tri cho truoc
+```python
+import itertools
 
-## Tai Lieu Tham Khao
+# count - đếm vô hạn
+for i in itertools.islice(itertools.count(1), 5):
+    print(i, end=" ")  # 1 2 3 4 5
 
-- [Collections Module](https://docs.python.org/3/library/collections.html)
-- [Itertools](https://docs.python.org/3/library/itertools.html)
-- [Dataclasses](https://docs.python.org/3/library/dataclasses.html)
-- [Typing](https://docs.python.org/3/library/typing.html)
+# cycle - lặp vòng
+colors = itertools.cycle(["red", "green", "blue"])
+for _ in range(6):
+    print(next(colors), end=" ")
+
+# chain - nối iterators
+a = [1, 2, 3]
+b = [4, 5, 6]
+print(list(itertools.chain(a, b)))  # [1,2,3,4,5,6]
+
+# product - tích Descartes
+print(list(itertools.product("AB", "12")))
+# [('A','1'),('A','2'),('B','1'),('B','2')]
+
+# combinations, permutations
+print(list(itertools.combinations("ABCD", 2)))
+print(list(itertools.permutations("ABC", 2)))
+
+# groupby
+data = [("A", 8), ("B", 7), ("A", 9), ("B", 6)]
+data.sort(key=lambda x: x[0])
+for key, group in itertools.groupby(data, key=lambda x: x[0]):
+    print(f"{key}: {list(group)}")
+```
+
+## 7.7 Bài Tập
+
+1. Dùng Counter đếm tần suất ký tự trong chuỗi
+2. Viết generator `prime_numbers()` sinh số nguyên tố vô hạn
+3. Tạo dataclass `Order` với items, tính tổng tiền
+4. Pipeline: đọc file CSV → filter → transform → output (dùng generators)
+
+---
+
+📖 **Trước đó**: [Chương 6](../chuong-06-xu-ly-file-exception/README.md) | **Tiếp theo**: [Chương 8](../chuong-08-thu-vien-pho-bien/README.md)

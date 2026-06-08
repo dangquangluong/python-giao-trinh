@@ -1,35 +1,21 @@
-"""
-Chuong 1: Chuong trinh dau tien voi Python
-"""
+# Chương trình Hello World đầu tiên trong Python
 
-# In ra man hinh
-print("Xin chao, Python!")
-print("Toi dang hoc lap trinh Python")
-print()
+# In ra màn hình
+print("Xin chào, Python! 🐍")
+print("Đây là chương trình đầu tiên của tôi.")
 
-# Phep tinh co ban
-print("=== Phep tinh co ban ===")
-print(f"2 + 3 = {2 + 3}")
-print(f"10 - 4 = {10 - 4}")
-print(f"5 * 6 = {5 * 6}")
-print(f"10 / 3 = {10 / 3:.2f}")
-print(f"10 // 3 = {10 // 3}")  # Chia lay phan nguyen
-print(f"10 % 3 = {10 % 3}")   # Chia lay phan du
-print(f"2 ** 10 = {2 ** 10}")  # Luy thua
-print()
-
-# Thong tin ca nhan
-ten = "Nguyen Van A"
+# Biến
+ten = "Bạn"
 tuoi = 25
-nghe_nghiep = "Lap trinh vien"
 
-print("=== Thong tin ca nhan ===")
-print(f"Ten: {ten}")
-print(f"Tuoi: {tuoi}")
-print(f"Nghe nghiep: {nghe_nghiep}")
-print()
+# f-string (format string)
+print(f"Xin chào, {ten}! Bạn {tuoi} tuổi.")
 
-# Kiem tra phien ban Python
-import sys
-print(f"Phien ban Python: {sys.version}")
-print(f"Duong dan Python: {sys.executable}")
+# Input từ người dùng
+# ten_nhap = input("Bạn tên gì? ")
+# print(f"Chào {ten_nhap}!")
+
+# Phép tính đơn giản
+print(f"2 + 3 = {2 + 3}")
+print(f"10 / 3 = {10 / 3:.2f}")
+print(f"2 ** 10 = {2 ** 10}")
