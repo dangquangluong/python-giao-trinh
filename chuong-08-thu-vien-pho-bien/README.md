@@ -7,34 +7,34 @@ pip install requests
 ```
 
 ```python
-import requests
+import requests                              # Thư viện HTTP phổ biến nhất Python
 
 # GET request
-resp = requests.get("https://api.github.com/users/python")
-print(f"Status: {resp.status_code}")
-data = resp.json()
-print(f"Name: {data['name']}")
+resp = requests.get("https://api.github.com/users/python")  # Gửi GET request đến URL
+print(f"Status: {resp.status_code}")         # In mã trạng thái HTTP (200=OK, 404=Not Found)
+data = resp.json()                           # .json() parse response body thành dict/list Python
+print(f"Name: {data['name']}")               # Truy cập dữ liệu từ JSON response
 
 # POST request
-resp = requests.post("https://httpbin.org/post", json={
-    "ten": "Python",
+resp = requests.post("https://httpbin.org/post", json={  # POST gửi dữ liệu lên server
+    "ten": "Python",                         # json= tự chuyển dict thành JSON body
     "version": "3.12"
 })
-print(resp.json())
+print(resp.json())                           # In response từ server
 
 # Với headers & params
 resp = requests.get(
-    "https://api.example.com/search",
-    params={"q": "python", "limit": 10},
-    headers={"Authorization": "Bearer token123"},
-    timeout=10
+    "https://api.example.com/search",        # URL cơ sở
+    params={"q": "python", "limit": 10},     # params= tự thêm ?q=python&limit=10 vào URL
+    headers={"Authorization": "Bearer token123"},  # headers= gửi kèm HTTP headers
+    timeout=10                               # timeout=10: đợi tối đa 10 giây
 )
 
 # Download file
-resp = requests.get("https://example.com/file.pdf", stream=True)
-with open("file.pdf", "wb") as f:
-    for chunk in resp.iter_content(chunk_size=8192):
-        f.write(chunk)
+resp = requests.get("https://example.com/file.pdf", stream=True)  # stream=True: không load hết vào RAM
+with open("file.pdf", "wb") as f:            # "wb" = write binary (file nhị phân)
+    for chunk in resp.iter_content(chunk_size=8192):  # Đọc từng chunk 8KB
+        f.write(chunk)                       # Ghi từng chunk vào file
 ```
 
 ## 8.2 FastAPI - Web Framework
@@ -44,51 +44,51 @@ pip install fastapi uvicorn
 ```
 
 ```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from fastapi import FastAPI, HTTPException   # FastAPI framework + class lỗi HTTP
+from pydantic import BaseModel               # Pydantic: validate dữ liệu tự động
+from typing import List, Optional            # Type hints
 
-app = FastAPI()
+app = FastAPI()                              # Tạo ứng dụng FastAPI
 
-# Model
-class SinhVien(BaseModel):
-    id: Optional[int] = None
-    ten: str
-    tuoi: int
-    diem: float
+# Model - định nghĩa cấu trúc dữ liệu (Pydantic tự validate)
+class SinhVien(BaseModel):                   # Kế thừa BaseModel để tự validate kiểu
+    id: Optional[int] = None                 # Optional: có thể None, mặc định None
+    ten: str                                 # Bắt buộc phải là str
+    tuoi: int                                # Bắt buộc phải là int
+    diem: float                              # Bắt buộc phải là float
 
-# "Database"
-db: List[SinhVien] = []
-next_id = 1
+# "Database" (giả lập bằng list)
+db: List[SinhVien] = []                      # List lưu trữ sinh viên
+next_id = 1                                  # Biến đếm ID
 
-@app.get("/")
-def home():
-    return {"message": "API Quản lý Sinh viên"}
+@app.get("/")                                # Decorator đăng ký route GET /
+def home():                                  # Hàm xử lý khi truy cập GET /
+    return {"message": "API Quản lý Sinh viên"}  # Trả về JSON tự động
 
-@app.get("/students", response_model=List[SinhVien])
-def get_students():
-    return db
+@app.get("/students", response_model=List[SinhVien])  # GET /students, response là List SinhVien
+def get_students():                          # Hàm lấy danh sách sinh viên
+    return db                                # Trả về toàn bộ list
 
-@app.post("/students", response_model=SinhVien, status_code=201)
-def create_student(sv: SinhVien):
-    global next_id
-    sv.id = next_id
-    next_id += 1
-    db.append(sv)
-    return sv
+@app.post("/students", response_model=SinhVien, status_code=201)  # POST tạo mới, trả về 201
+def create_student(sv: SinhVien):            # FastAPI tự parse JSON body thành SinhVien
+    global next_id                           # global để sửa biến ngoài hàm
+    sv.id = next_id                          # Gán ID
+    next_id += 1                             # Tăng ID
+    db.append(sv)                            # Thêm vào "database"
+    return sv                                # Trả về object vừa tạo
 
-@app.get("/students/{student_id}")
-def get_student(student_id: int):
+@app.get("/students/{student_id}")           # {student_id} = path parameter (động)
+def get_student(student_id: int):            # FastAPI tự ép kiểu từ URL string thành int
     for sv in db:
         if sv.id == student_id:
-            return sv
-    raise HTTPException(status_code=404, detail="Không tìm thấy")
+            return sv                        # Trả về nếu tìm thấy
+    raise HTTPException(status_code=404, detail="Không tìm thấy")  # Ném lỗi 404
 
-@app.delete("/students/{student_id}")
+@app.delete("/students/{student_id}")        # DELETE method
 def delete_student(student_id: int):
-    for i, sv in enumerate(db):
+    for i, sv in enumerate(db):              # Lặp với index để xóa
         if sv.id == student_id:
-            db.pop(i)
+            db.pop(i)                        # .pop(i) xóa phần tử tại index i
             return {"message": "Đã xóa"}
     raise HTTPException(status_code=404, detail="Không tìm thấy")
 
@@ -103,48 +103,48 @@ pip install sqlalchemy
 ```
 
 ```python
-from sqlalchemy import create_engine, Column, Integer, String, Float
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy import create_engine, Column, Integer, String, Float  # SQLAlchemy components
+from sqlalchemy.orm import declarative_base, sessionmaker  # ORM tools
 
 # Setup
-engine = create_engine("sqlite:///students.db")
-Base = declarative_base()
-Session = sessionmaker(bind=engine)
+engine = create_engine("sqlite:///students.db")  # Tạo engine kết nối SQLite
+Base = declarative_base()                    # Base class cho tất cả model
+Session = sessionmaker(bind=engine)          # Factory tạo session (phiên làm việc với DB)
 
-# Model
-class Student(Base):
-    __tablename__ = "students"
-    id = Column(Integer, primary_key=True)
-    ten = Column(String(100), nullable=False)
-    tuoi = Column(Integer)
-    diem = Column(Float)
+# Model - định nghĩa bảng bằng class
+class Student(Base):                         # Kế thừa Base = đây là bảng trong DB
+    __tablename__ = "students"               # Tên bảng trong database
+    id = Column(Integer, primary_key=True)   # Cột id, số nguyên, khóa chính (tự tăng)
+    ten = Column(String(100), nullable=False) # Cột tên, chuỗi max 100 ký tự, không được null
+    tuoi = Column(Integer)                   # Cột tuổi, số nguyên
+    diem = Column(Float)                     # Cột điểm, số thực
 
-    def __repr__(self):
+    def __repr__(self):                      # Chuỗi mô tả object
         return f"Student({self.ten}, {self.diem})"
 
 # Tạo bảng
-Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)             # Tạo tất cả bảng đã định nghĩa trong DB
 
-# CRUD
-session = Session()
+# CRUD operations
+session = Session()                          # Tạo session mới
 
 # Create
-sv = Student(ten="Nguyễn A", tuoi=22, diem=8.5)
-session.add(sv)
-session.commit()
+sv = Student(ten="Nguyễn A", tuoi=22, diem=8.5)  # Tạo object Student
+session.add(sv)                              # Thêm vào session (chưa lưu DB)
+session.commit()                             # commit() lưu thay đổi vào DB
 
 # Read
-all_students = session.query(Student).all()
-gioi = session.query(Student).filter(Student.diem >= 8.0).all()
+all_students = session.query(Student).all()  # .all() lấy tất cả bản ghi
+gioi = session.query(Student).filter(Student.diem >= 8.0).all()  # .filter() lọc
 
 # Update
-sv = session.query(Student).filter_by(ten="Nguyễn A").first()
-sv.diem = 9.0
-session.commit()
+sv = session.query(Student).filter_by(ten="Nguyễn A").first()  # .first() lấy 1 kết quả
+sv.diem = 9.0                                # Sửa thuộc tính
+session.commit()                             # Lưu thay đổi
 
 # Delete
-session.query(Student).filter_by(ten="Nguyễn A").delete()
-session.commit()
+session.query(Student).filter_by(ten="Nguyễn A").delete()  # Xóa bản ghi khớp
+session.commit()                             # Lưu thay đổi
 ```
 
 ## 8.4 pytest - Testing
@@ -155,28 +155,28 @@ pip install pytest
 
 ```python
 # file: test_calculator.py
-def cong(a, b):
+def cong(a, b):                              # Hàm cần test
     return a + b
 
-def chia(a, b):
+def chia(a, b):                              # Hàm chia có xử lý lỗi
     if b == 0:
-        raise ValueError("Chia cho 0!")
+        raise ValueError("Chia cho 0!")      # Ném lỗi khi chia cho 0
     return a / b
 
-# Tests
-def test_cong():
-    assert cong(2, 3) == 5
-    assert cong(-1, 1) == 0
-    assert cong(0, 0) == 0
+# Tests - tên hàm test bắt đầu bằng test_
+def test_cong():                             # pytest tự tìm và chạy hàm test_*
+    assert cong(2, 3) == 5                   # assert: nếu False thì test FAIL
+    assert cong(-1, 1) == 0                  # Test với số âm
+    assert cong(0, 0) == 0                   # Test với 0
 
-def test_chia():
-    assert chia(10, 2) == 5.0
+def test_chia():                             # Test hàm chia
+    assert chia(10, 2) == 5.0                # Kiểm tra kết quả đúng
     assert chia(7, 2) == 3.5
 
-def test_chia_cho_0():
+def test_chia_cho_0():                       # Test exception
     import pytest
-    with pytest.raises(ValueError):
-        chia(10, 0)
+    with pytest.raises(ValueError):          # Kỳ vọng ValueError được ném ra
+        chia(10, 0)                          # Gọi hàm với b=0
 
 # Chạy: pytest test_calculator.py -v
 ```
@@ -184,21 +184,21 @@ def test_chia_cho_0():
 ### Fixtures
 
 ```python
-import pytest
+import pytest                                # Import pytest
+
+@pytest.fixture                              # @fixture = hàm chuẩn bị dữ liệu test (setup)
+def sample_data():                           # pytest tự gọi fixture khi test cần
+    return [1, 2, 3, 4, 5]                  # Trả về dữ liệu mẫu
 
 @pytest.fixture
-def sample_data():
-    return [1, 2, 3, 4, 5]
-
-@pytest.fixture
-def empty_list():
+def empty_list():                            # Fixture tạo list rỗng
     return []
 
-def test_sum(sample_data):
-    assert sum(sample_data) == 15
+def test_sum(sample_data):                   # Tham số trùng tên fixture = tự inject dữ liệu
+    assert sum(sample_data) == 15            # Test với dữ liệu từ fixture
 
-def test_empty(empty_list):
-    assert len(empty_list) == 0
+def test_empty(empty_list):                  # Nhận empty_list từ fixture
+    assert len(empty_list) == 0              # Kiểm tra list rỗng
 ```
 
 ## 8.5 pandas - Data Analysis
@@ -208,37 +208,37 @@ pip install pandas
 ```
 
 ```python
-import pandas as pd
+import pandas as pd                          # Import pandas với alias pd (quy ước)
 
-# Tạo DataFrame
-df = pd.DataFrame({
-    "ten": ["An", "Binh", "Cuong", "Dung", "Em"],
-    "tuoi": [22, 21, 23, 20, 22],
-    "diem_python": [8.5, 7.0, 9.2, 6.5, 8.0],
-    "diem_sql": [7.5, 8.0, 8.5, 7.0, 9.0],
+# Tạo DataFrame (bảng 2 chiều)
+df = pd.DataFrame({                          # DataFrame từ dict (mỗi key = 1 cột)
+    "ten": ["An", "Binh", "Cuong", "Dung", "Em"],  # Cột tên
+    "tuoi": [22, 21, 23, 20, 22],           # Cột tuổi
+    "diem_python": [8.5, 7.0, 9.2, 6.5, 8.0],  # Cột điểm Python
+    "diem_sql": [7.5, 8.0, 8.5, 7.0, 9.0],     # Cột điểm SQL
 })
 
 # Thao tác cơ bản
-print(df.head())
-print(df.describe())
-print(df.info())
+print(df.head())                             # .head() in 5 dòng đầu
+print(df.describe())                         # .describe() thống kê (mean, std, min, max)
+print(df.info())                             # .info() thông tin kiểu dữ liệu, null
 
-# Thêm cột
-df["diem_tb"] = (df["diem_python"] + df["diem_sql"]) / 2
+# Thêm cột mới
+df["diem_tb"] = (df["diem_python"] + df["diem_sql"]) / 2  # Tạo cột mới từ phép tính
 
-# Lọc
-gioi = df[df["diem_tb"] >= 8.0]
-print(gioi)
+# Lọc dữ liệu
+gioi = df[df["diem_tb"] >= 8.0]             # Lọc hàng: chỉ giữ dòng có diem_tb >= 8
+print(gioi)                                  # In kết quả lọc
 
 # Sắp xếp
-df_sorted = df.sort_values("diem_tb", ascending=False)
+df_sorted = df.sort_values("diem_tb", ascending=False)  # Sắp theo diem_tb giảm dần
 
 # Group by
-# df.groupby("lop")["diem"].mean()
+# df.groupby("lop")["diem"].mean()          # Nhóm theo lớp, tính điểm TB mỗi nhóm
 
 # Đọc/ghi CSV
-df.to_csv("students.csv", index=False)
-df2 = pd.read_csv("students.csv")
+df.to_csv("students.csv", index=False)       # Ghi DataFrame ra file CSV
+df2 = pd.read_csv("students.csv")            # Đọc CSV thành DataFrame
 ```
 
 ## 8.6 Các Thư Viện Khác Nên Biết

@@ -85,11 +85,11 @@ Tạo file `hello.py`:
 
 ```python
 # Chương trình đầu tiên
-print("Xin chào, Python! 🐍")
+print("Xin chào, Python! 🐍")              # print() = hàm in ra màn hình, chuỗi nằm trong ""
 
 # Biến và in ra
-ten = "Bạn"
-print(f"Xin chào, {ten}! Chào mừng đến với Python.")
+ten = "Bạn"                                 # Tạo biến ten, gán giá trị chuỗi "Bạn"
+print(f"Xin chào, {ten}! Chào mừng đến với Python.")  # f-string: dùng {biến} để chèn giá trị vào chuỗi
 ```
 
 Chạy:
